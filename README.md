@@ -30,12 +30,12 @@ npm run preview  # Preview locally
 **✅ Vercel Deployment Ready:**
 - Repository: https://github.com/DBAYF/cell-forge.git
 - Build Status: ✅ Successful
-- Configuration: `vercel.json` + `.vercelignore`
+- Configuration: Auto-detection (no vercel.json needed)
 - Features: 3D viewport, mock battery data, electrical calculations
 
 **To Deploy on Vercel:**
-1. Connect repository to Vercel
-2. Vercel auto-detects Vite configuration
+1. Connect repository `https://github.com/DBAYF/cell-forge.git` to Vercel
+2. Vercel auto-detects as Vite React project
 3. Deploys successfully with full web functionality
 
 ## Recommended IDE Setup
