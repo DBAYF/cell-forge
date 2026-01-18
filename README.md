@@ -31,12 +31,20 @@ npm run preview  # Preview locally
 - Repository: https://github.com/DBAYF/cell-forge.git
 - Build Status: ✅ Successful
 - Configuration: Auto-detection (no vercel.json needed)
+- Layout: Canvas-centered with overlay panels
 - Features: 3D viewport, mock battery data, electrical calculations
+
+**Layout Design:**
+- **Main Canvas**: Full-screen 3D workspace in center
+- **Overlay Panels**: Floating sidebars (Library, Properties)
+- **Toolbar**: Top overlay with all tools and controls
+- **Status Bar**: Bottom center floating indicator
+- **Title Bar**: Minimal top overlay with branding
 
 **To Deploy on Vercel:**
 1. Connect repository `https://github.com/DBAYF/cell-forge.git` to Vercel
 2. Vercel auto-detects as Vite React project
-3. Deploys successfully with full web functionality
+3. Deploys successfully with canvas-centered design
 
 ## Recommended IDE Setup
 
