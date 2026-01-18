@@ -4,52 +4,60 @@ import { useUIStore } from '../../stores';
 export function TitleBar() {
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between select-none">
-      {/* Left side - Menu and title */}
-      <div className="flex items-center space-x-4">
-        <Menu className="w-5 h-5 text-gray-400" />
-        <span className="text-lg font-semibold">CellForge</span>
-      </div>
-
-      {/* Center - Menu bar */}
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-1">
-          <button className="px-3 py-1 text-sm hover:bg-gray-700 rounded transition-colors">
-            File
-          </button>
-          <div className="relative">
-            <button className="px-3 py-1 text-sm hover:bg-gray-700 rounded transition-colors">
-              Edit
-            </button>
-          </div>
-          <button className="px-3 py-1 text-sm hover:bg-gray-700 rounded transition-colors">
-            View
-          </button>
-          <button className="px-3 py-1 text-sm hover:bg-gray-700 rounded transition-colors">
-            Tools
-          </button>
+    <div className="bg-black/20 backdrop-blur-md border-b border-white/10 px-6 py-2 flex items-center justify-between select-none">
+      {/* Left side - Logo and title */}
+      <div className="flex items-center space-x-3">
+        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+          <span className="text-white font-bold text-sm">CF</span>
         </div>
+        <span className="text-lg font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+          CellForge
+        </span>
+        <span className="text-xs text-slate-400 font-medium">3D Battery Designer</span>
       </div>
 
-      {/* Right side - Window controls */}
+      {/* Center - Quick actions */}
       <div className="flex items-center space-x-2">
+        <button className="px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200 font-medium">
+          File
+        </button>
+        <button className="px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200 font-medium">
+          Edit
+        </button>
+        <button className="px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200 font-medium">
+          View
+        </button>
+        <button className="px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200 font-medium">
+          Tools
+        </button>
+      </div>
+
+      {/* Right side - Status and controls */}
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 text-xs">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-green-300 font-medium">Ready</span>
+        </div>
+
+        <div className="w-px h-4 bg-white/20"></div>
+
         <button
-          className="w-8 h-8 flex items-center justify-center hover:bg-gray-700 rounded transition-colors"
+          className="w-6 h-6 flex items-center justify-center hover:bg-white/10 rounded transition-colors"
           title="Minimize"
         >
-          <Minimize2 className="w-4 h-4" />
+          <Minimize2 className="w-3 h-3 text-slate-400" />
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center hover:bg-gray-700 rounded transition-colors"
+          className="w-6 h-6 flex items-center justify-center hover:bg-white/10 rounded transition-colors"
           title="Maximize"
         >
-          <Maximize2 className="w-4 h-4" />
+          <Maximize2 className="w-3 h-3 text-slate-400" />
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center hover:bg-red-600 rounded transition-colors"
+          className="w-6 h-6 flex items-center justify-center hover:bg-red-500/80 rounded transition-colors"
           title="Close"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3 h-3 text-white" />
         </button>
       </div>
     </div>
