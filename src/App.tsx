@@ -12,10 +12,14 @@ import { KeyboardShortcuts } from './lib/keyboardShortcuts';
 import { Accessibility } from './lib/accessibility';
 
 function App() {
+  console.log('App component rendering...');
+
   const sidebarWidth = useUIStore((state) => state.sidebarWidth);
   const propertiesWidth = useUIStore((state) => state.propertiesWidth);
   const setSidebarWidth = useUIStore((state) => state.setSidebarWidth);
   const setPropertiesWidth = useUIStore((state) => state.setPropertiesWidth);
+
+  console.log('UI store values:', { sidebarWidth, propertiesWidth });
 
   // Ensure electrical calculations are always up to date
   useElectricalSolver();

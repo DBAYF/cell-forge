@@ -9,11 +9,15 @@ import { TransformGizmo } from './TransformGizmo';
 import { useUIStore } from '../../stores';
 
 export function ViewportCanvas() {
+  console.log('ViewportCanvas rendering...');
+
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
   const activeTool = useUIStore((state) => state.activeTool);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
+
+  console.log('Canvas state:', { gridVisible, gridSize, activeTool, selectedUuids: selectedUuids.size });
 
   // Handle drag and drop from library
   const handleDrop = (event: React.DragEvent) => {
@@ -49,6 +53,16 @@ export function ViewportCanvas() {
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
       </div>
+
+      {/* Fallback for when WebGL fails */}
+      <div className="absolute inset-0 flex items-center justify-center text-white text-center p-8 z-50 pointer-events-none">
+        <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 max-w-md">
+          <div className="text-2xl font-bold mb-2">CellForge 3D</div>
+          <div className="text-sm opacity-75">Loading 3D workspace...</div>
+          <div className="mt-4 text-xs opacity-50">If this persists, try refreshing the page</div>
+        </div>
+      </div>
+
       <Canvas
         camera={{
           position: [100, 100, 100],
@@ -112,7 +126,12 @@ export function ViewportCanvas() {
         )}
 
         {/* Scene Content */}
-        <Suspense fallback={null}>
+        <Suspense fallback={
+          <mesh>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshBasicMaterial color="#4a90e2" />
+          </mesh>
+        }>
           <Scene />
         </Suspense>
 
