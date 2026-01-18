@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { useSceneStore } from '../../stores';
@@ -7,9 +7,12 @@ import { CameraController } from './CameraController';
 import { SelectionHandler } from './SelectionHandler';
 import { TransformGizmo } from './TransformGizmo';
 import { useUIStore } from '../../stores';
+import * as THREE from 'three';
 
 export function ViewportCanvas() {
   console.log('ViewportCanvas rendering...');
+  console.log('THREE available:', typeof THREE);
+  console.log('THREE.Vector3 available:', typeof THREE?.Vector3);
 
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
@@ -18,6 +21,15 @@ export function ViewportCanvas() {
   const addCell = useSceneStore((state) => state.addCell);
 
   console.log('Canvas state:', { gridVisible, gridSize, activeTool, selectedUuids: selectedUuids.size });
+
+  // Ensure THREE.js is available
+  useEffect(() => {
+    if (typeof THREE === 'undefined') {
+      console.error('THREE.js is not available!');
+    } else {
+      console.log('THREE.js is available, version:', THREE.REVISION);
+    }
+  }, []);
 
   // Handle drag and drop from library
   const handleDrop = (event: React.DragEvent) => {
@@ -54,16 +66,9 @@ export function ViewportCanvas() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
       </div>
 
-      {/* Fallback for when WebGL fails */}
-      <div className="absolute inset-0 flex items-center justify-center text-white text-center p-8 z-50 pointer-events-none">
-        <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 max-w-md">
-          <div className="text-2xl font-bold mb-2">CellForge 3D</div>
-          <div className="text-sm opacity-75">Loading 3D workspace...</div>
-          <div className="mt-4 text-xs opacity-50">If this persists, try refreshing the page</div>
-        </div>
-      </div>
-
-      <Canvas
+      {/* Conditionally render Canvas only if THREE.js is available */}
+      {typeof THREE !== 'undefined' ? (
+        <Canvas
         camera={{
           position: [100, 100, 100],
           fov: 50,
@@ -151,6 +156,19 @@ export function ViewportCanvas() {
           <GizmoViewport axisColors={['red', 'green', 'blue']} labelColor="black" />
         </GizmoHelper>
       </Canvas>
+      ) : (
+        /* Fallback for when THREE.js is not available */
+        <div className="absolute inset-0 flex items-center justify-center text-white text-center p-8">
+          <div className="bg-red-900/50 backdrop-blur-sm rounded-lg p-6 max-w-md border border-red-500/50">
+            <div className="text-2xl font-bold mb-2 text-red-400">⚠️ 3D Engine Error</div>
+            <div className="text-sm opacity-75 mb-2">THREE.js library failed to load</div>
+            <div className="text-xs opacity-50 mb-4">This prevents the 3D canvas from rendering</div>
+            <div className="text-xs opacity-75 bg-slate-800 p-2 rounded">
+              Check browser console for details. Try refreshing or using a different browser.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
