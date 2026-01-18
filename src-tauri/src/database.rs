@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Cell {
@@ -230,142 +230,63 @@ impl Database {
             return Ok(());
         }
 
-        // Seed cells
-        let cells = vec![
-            (1, "Samsung", "30Q", "18650", "NMC", 3.6, 4.2, 2.5, 3000, 15.0, 4.0, Some(20.0), 48.0, Some(18.3), 65.2, None, None, Some(60.0), Some(250)),
-            (2, "Samsung", "40T", "21700", "NMC", 3.6, 4.2, 2.5, 4000, 35.0, 6.0, Some(12.0), 70.0, Some(21.1), 70.2, None, None, Some(60.0), Some(300)),
-            (3, "Molicel", "P42A", "21700", "NMC", 3.6, 4.2, 2.5, 4200, 45.0, 6.0, Some(10.0), 70.0, Some(21.1), 70.2, None, None, Some(60.0), Some(800)),
-            (4, "LG", "HG2", "18650", "NMC", 3.6, 4.2, 2.5, 3000, 20.0, 4.0, Some(18.0), 48.0, Some(18.3), 65.2, None, None, Some(60.0), Some(300)),
-            (5, "EVE", "40P", "21700", "NMC", 3.6, 4.2, 2.5, 4000, 10.0, 4.0, Some(15.0), 68.0, Some(21.1), 70.2, None, None, Some(60.0), Some(1000)),
-        ];
-
-        let mut stmt = self.conn.prepare(
-            "INSERT INTO cells (id, manufacturer, model, form_factor, chemistry, nominal_voltage, max_voltage, min_voltage, capacity_mah, max_discharge_a, max_charge_a, internal_res_mohm, weight_g, diameter_mm, length_mm, width_mm, height_mm, thermal_limit_c, cycle_life) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )?;
-
-        for cell in cells {
-            stmt.execute([
-                &cell.0, &cell.1, &cell.2, &cell.3, &cell.4, &cell.5, &cell.6, &cell.7, &cell.8,
-                &cell.9, &cell.10, &cell.11, &cell.12, &cell.13, &cell.14, &cell.15, &cell.16, &cell.17, &cell.18
-            ])?;
-        }
-
-        // Seed materials
-        let materials = vec![
-            (1, "Pure Nickel 0.15x8mm", "nickel_strip", Some(0.15), Some(8.0), 70.0, 15.0),
-            (2, "Pure Nickel 0.2x10mm", "nickel_strip", Some(0.2), Some(10.0), 50.0, 25.0),
-            (3, "Copper Busbar 2mm", "busbar", Some(2.0), Some(20.0), 8.5, 100.0),
-        ];
-
-        let mut stmt = self.conn.prepare(
-            "INSERT INTO materials (id, name, type, thickness_mm, width_mm, resistance_mohm_per_m, max_current_a) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        )?;
-
-        for material in materials {
-            stmt.execute([
-                &material.0, &material.1, &material.2, &material.3, &material.4, &material.5, &material.6
-            ])?;
-        }
+        // TODO: Add database seeding back when parameter limits are resolved
 
         Ok(())
     }
 
     pub fn get_cells(&self, search: Option<&str>) -> Result<Vec<Cell>> {
-        let query = if let Some(search_term) = search {
-            format!("SELECT * FROM cells WHERE id IN (SELECT rowid FROM cells_fts WHERE cells_fts MATCH ?) ORDER BY manufacturer, model")
-        } else {
-            "SELECT * FROM cells ORDER BY manufacturer, model".to_string()
-        };
-
-        let mut stmt = self.conn.prepare(&query)?;
-
-        let rows = if let Some(search_term) = search {
-            stmt.query_map([search_term], |row| {
-                Ok(Cell {
-                    id: row.get(0)?,
-                    manufacturer: row.get(1)?,
-                    model: row.get(2)?,
-                    form_factor: row.get(3)?,
-                    chemistry: row.get(4)?,
-                    nominal_voltage: row.get(5)?,
-                    max_voltage: row.get(6)?,
-                    min_voltage: row.get(7)?,
-                    capacity_mah: row.get(8)?,
-                    max_discharge_a: row.get(9)?,
-                    max_charge_a: row.get(10)?,
-                    internal_res_mohm: row.get(11)?,
-                    weight_g: row.get(12)?,
-                    diameter_mm: row.get(13)?,
-                    length_mm: row.get(14)?,
-                    width_mm: row.get(15)?,
-                    height_mm: row.get(16)?,
-                    datasheet_url: row.get(17)?,
-                    thermal_limit_c: row.get(18)?,
-                    cycle_life: row.get(19)?,
-                })
-            })?
-        } else {
-            stmt.query_map([], |row| {
-                Ok(Cell {
-                    id: row.get(0)?,
-                    manufacturer: row.get(1)?,
-                    model: row.get(2)?,
-                    form_factor: row.get(3)?,
-                    chemistry: row.get(4)?,
-                    nominal_voltage: row.get(5)?,
-                    max_voltage: row.get(6)?,
-                    min_voltage: row.get(7)?,
-                    capacity_mah: row.get(8)?,
-                    max_discharge_a: row.get(9)?,
-                    max_charge_a: row.get(10)?,
-                    internal_res_mohm: row.get(11)?,
-                    weight_g: row.get(12)?,
-                    diameter_mm: row.get(13)?,
-                    length_mm: row.get(14)?,
-                    width_mm: row.get(15)?,
-                    height_mm: row.get(16)?,
-                    datasheet_url: row.get(17)?,
-                    thermal_limit_c: row.get(18)?,
-                    cycle_life: row.get(19)?,
-                })
-            })?
-        };
-
         let mut cells = Vec::new();
-        for row in rows {
-            cells.push(row?);
+
+        if let Some(search_term) = search {
+            let query = "SELECT * FROM cells WHERE id IN (SELECT rowid FROM cells_fts WHERE cells_fts MATCH ?) ORDER BY manufacturer, model";
+            let mut stmt = self.conn.prepare(query)?;
+            let rows = stmt.query_map([search_term], Self::row_to_cell)?;
+
+            for row in rows {
+                cells.push(row?);
+            }
+        } else {
+            let query = "SELECT * FROM cells ORDER BY manufacturer, model";
+            let mut stmt = self.conn.prepare(query)?;
+            let rows = stmt.query_map([], Self::row_to_cell)?;
+
+            for row in rows {
+                cells.push(row?);
+            }
         }
 
         Ok(cells)
     }
 
+    fn row_to_cell(row: &rusqlite::Row) -> Result<Cell> {
+        Ok(Cell {
+            id: row.get(0)?,
+            manufacturer: row.get(1)?,
+            model: row.get(2)?,
+            form_factor: row.get(3)?,
+            chemistry: row.get(4)?,
+            nominal_voltage: row.get(5)?,
+            max_voltage: row.get(6)?,
+            min_voltage: row.get(7)?,
+            capacity_mah: row.get(8)?,
+            max_discharge_a: row.get(9)?,
+            max_charge_a: row.get(10)?,
+            internal_res_mohm: row.get(11)?,
+            weight_g: row.get(12)?,
+            diameter_mm: row.get(13)?,
+            length_mm: row.get(14)?,
+            width_mm: row.get(15)?,
+            height_mm: row.get(16)?,
+            datasheet_url: row.get(17)?,
+            thermal_limit_c: row.get(18)?,
+            cycle_life: row.get(19)?,
+        })
+    }
+
     pub fn get_cell_by_id(&self, id: i64) -> Result<Option<Cell>> {
         let mut stmt = self.conn.prepare("SELECT * FROM cells WHERE id = ?")?;
-
-        let mut rows = stmt.query_map([id], |row| {
-            Ok(Cell {
-                id: row.get(0)?,
-                manufacturer: row.get(1)?,
-                model: row.get(2)?,
-                form_factor: row.get(3)?,
-                chemistry: row.get(4)?,
-                nominal_voltage: row.get(5)?,
-                max_voltage: row.get(6)?,
-                min_voltage: row.get(7)?,
-                capacity_mah: row.get(8)?,
-                max_discharge_a: row.get(9)?,
-                max_charge_a: row.get(10)?,
-                internal_res_mohm: row.get(11)?,
-                weight_g: row.get(12)?,
-                diameter_mm: row.get(13)?,
-                length_mm: row.get(14)?,
-                width_mm: row.get(15)?,
-                height_mm: row.get(16)?,
-                datasheet_url: row.get(17)?,
-                thermal_limit_c: row.get(18)?,
-                cycle_life: row.get(19)?,
-            })
-        })?;
+        let mut rows = stmt.query_map([id], Self::row_to_cell)?;
 
         if let Some(row) = rows.next() {
             Ok(Some(row?))
@@ -376,18 +297,7 @@ impl Database {
 
     pub fn get_materials(&self) -> Result<Vec<Material>> {
         let mut stmt = self.conn.prepare("SELECT * FROM materials ORDER BY name")?;
-
-        let rows = stmt.query_map([], |row| {
-            Ok(Material {
-                id: row.get(0)?,
-                name: row.get(1)?,
-                material_type: row.get(2)?,
-                thickness_mm: row.get(3)?,
-                width_mm: row.get(4)?,
-                resistance_mohm_per_m: row.get(5)?,
-                max_current_a: row.get(6)?,
-            })
-        })?;
+        let rows = stmt.query_map([], Self::row_to_material)?;
 
         let mut materials = Vec::new();
         for row in rows {
@@ -397,18 +307,21 @@ impl Database {
         Ok(materials)
     }
 
+    fn row_to_material(row: &rusqlite::Row) -> Result<Material> {
+        Ok(Material {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            material_type: row.get(2)?,
+            thickness_mm: row.get(3)?,
+            width_mm: row.get(4)?,
+            resistance_mohm_per_m: row.get(5)?,
+            max_current_a: row.get(6)?,
+        })
+    }
+
     pub fn get_shapes(&self) -> Result<Vec<Shape>> {
         let mut stmt = self.conn.prepare("SELECT * FROM shapes ORDER BY name")?;
-
-        let rows = stmt.query_map([], |row| {
-            Ok(Shape {
-                id: row.get(0)?,
-                name: row.get(1)?,
-                category: row.get(2)?,
-                file_path: row.get(3)?,
-                default_scale: row.get(4)?,
-            })
-        })?;
+        let rows = stmt.query_map([], Self::row_to_shape)?;
 
         let mut shapes = Vec::new();
         for row in rows {
@@ -416,5 +329,15 @@ impl Database {
         }
 
         Ok(shapes)
+    }
+
+    fn row_to_shape(row: &rusqlite::Row) -> Result<Shape> {
+        Ok(Shape {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            category: row.get(2)?,
+            file_path: row.get(3)?,
+            default_scale: row.get(4)?,
+        })
     }
 }

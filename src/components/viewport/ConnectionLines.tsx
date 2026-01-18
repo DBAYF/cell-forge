@@ -1,7 +1,6 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Connection } from '../../types/project';
-import { generateWireGeometry } from '../../lib/meshGenerators';
 
 interface ConnectionLinesProps {
   connections: Connection[];

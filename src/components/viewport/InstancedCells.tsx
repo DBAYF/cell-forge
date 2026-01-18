@@ -1,5 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { CellInstance } from '../../types/project';
 import { generateCellGeometry } from '../../lib/meshGenerators';
@@ -55,7 +54,7 @@ export function InstancedCells({ cells }: InstancedCellsProps) {
           map: texture,
         });
 
-        // Create instanced mesh
+              // Create instanced mesh
         const mesh = new THREE.InstancedMesh(geometry, material, instances.length);
         mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
@@ -151,6 +150,11 @@ function CellMesh({ cell }: CellMeshProps) {
   }, [cell.position, cell.rotation]);
 
   return (
-    <mesh ref={meshRef} geometry={geometry} material={material} />
+    <mesh
+      ref={meshRef}
+      geometry={geometry}
+      material={material}
+      userData={{ uuid: cell.uuid }}
+    />
   );
 }

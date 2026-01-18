@@ -29,7 +29,7 @@ pub struct FilesystemError {
 async fn get_cells(
     search: Option<String>,
     state: State<'_, AppState>,
-) -> Result<database::Cell, DatabaseError> {
+) -> Result<Vec<database::Cell>, DatabaseError> {
     let db = state.database.lock().unwrap();
     match db.get_cells(search.as_deref()) {
         Ok(cells) => Ok(cells),
@@ -56,7 +56,7 @@ async fn get_cell_by_id(
 #[tauri::command]
 async fn get_materials(
     state: State<'_, AppState>,
-) -> Result<database::Material, DatabaseError> {
+) -> Result<Vec<database::Material>, DatabaseError> {
     let db = state.database.lock().unwrap();
     match db.get_materials() {
         Ok(materials) => Ok(materials),
@@ -69,7 +69,7 @@ async fn get_materials(
 #[tauri::command]
 async fn get_shapes(
     state: State<'_, AppState>,
-) -> Result<database::Shape, DatabaseError> {
+) -> Result<Vec<database::Shape>, DatabaseError> {
     let db = state.database.lock().unwrap();
     match db.get_shapes() {
         Ok(shapes) => Ok(shapes),

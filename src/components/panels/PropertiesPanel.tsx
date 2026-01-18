@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useUIStore, useSceneStore } from '../../stores';
+import { useSceneStore } from '../../stores';
 
 export function PropertiesPanel() {
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
@@ -57,7 +57,7 @@ export function PropertiesPanel() {
                     type="text"
                     className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm focus:outline-none focus:border-blue-500"
                     value={selectedCell?.customLabel || `${selectedCell?.manufacturer || 'Component'} ${selectedCell?.model || ''}`}
-                    onChange={(e) => {
+                    onChange={() => {
                       // TODO: Update custom label
                     }}
                   />
@@ -72,7 +72,7 @@ export function PropertiesPanel() {
                       <input
                         type="text"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={selectedCell.manufacturer}
+                        value={selectedCell.manufacturer || 'Unknown'}
                         readOnly
                       />
                     </div>
@@ -83,7 +83,7 @@ export function PropertiesPanel() {
                       <input
                         type="text"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={selectedCell.model}
+                        value={selectedCell.model || 'Cell'}
                         readOnly
                       />
                     </div>
@@ -111,7 +111,7 @@ export function PropertiesPanel() {
                         step="0.1"
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm focus:outline-none focus:border-blue-500"
                         value={selectedObject.position[0].toFixed(1)}
-                        onChange={(e) => {
+                        onChange={() => {
                           // TODO: Update position
                         }}
                       />
@@ -123,7 +123,7 @@ export function PropertiesPanel() {
                         step="0.1"
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm focus:outline-none focus:border-blue-500"
                         value={selectedObject.position[1].toFixed(1)}
-                        onChange={(e) => {
+                        onChange={() => {
                           // TODO: Update position
                         }}
                       />
@@ -135,7 +135,7 @@ export function PropertiesPanel() {
                         step="0.1"
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm focus:outline-none focus:border-blue-500"
                         value={selectedObject.position[2].toFixed(1)}
-                        onChange={(e) => {
+                        onChange={() => {
                           // TODO: Update position
                         }}
                       />
@@ -206,7 +206,7 @@ export function PropertiesPanel() {
                         type="number"
                         step="0.1"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={selectedCell.nominal_voltage}
+                        value={selectedCell.nominalVoltage || 3.6}
                         readOnly
                       />
                     </div>
@@ -217,7 +217,7 @@ export function PropertiesPanel() {
                       <input
                         type="text"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={`${selectedCell.capacity_mah}mAh`}
+                        value={`${selectedCell.capacityMah || 3000}mAh`}
                         readOnly
                       />
                     </div>
@@ -232,7 +232,7 @@ export function PropertiesPanel() {
                         type="number"
                         step="0.1"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={selectedCell.max_discharge_a}
+                        value={selectedCell.maxDischargeA || 15}
                         readOnly
                       />
                     </div>
@@ -243,7 +243,7 @@ export function PropertiesPanel() {
                       <input
                         type="text"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-                        value={selectedCell.chemistry}
+                        value={selectedCell.chemistry || 'NMC'}
                         readOnly
                       />
                     </div>

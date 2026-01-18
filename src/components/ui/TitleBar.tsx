@@ -1,13 +1,7 @@
-import React from 'react';
 import { Menu, Minimize2, Maximize2, X } from 'lucide-react';
 import { useUIStore } from '../../stores';
 
 export function TitleBar() {
-  const openNewProjectDialog = useUIStore((state) => state.openNewProjectDialog);
-  const openOpenProjectDialog = useUIStore((state) => state.openOpenProjectDialog);
-  const openSaveAsDialog = useUIStore((state) => state.openSaveAsDialog);
-  const openPreferencesDialog = useUIStore((state) => state.openPreferencesDialog);
-  const openAboutDialog = useUIStore((state) => state.openAboutDialog);
 
   return (
     <div className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between select-none">

@@ -1,20 +1,14 @@
-import React, { useRef, useEffect } from 'react';
-import { useThree, useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useUIStore } from '../../stores';
 
 export function CameraController() {
-  const { camera, gl } = useThree();
+  const { camera } = useThree();
   const controlsRef = useRef<any>();
   const snapEnabled = useUIStore((state) => state.snapEnabled);
-  const snapIncrement = useUIStore((state) => state.snapIncrement);
 
-  // Custom snap function for orbit controls
-  const snapToGrid = (value: number, increment: number): number => {
-    if (!snapEnabled) return value;
-    return Math.round(value / increment) * increment;
-  };
 
   useEffect(() => {
     if (controlsRef.current) {

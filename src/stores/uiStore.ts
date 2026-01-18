@@ -58,7 +58,7 @@ export interface UIState {
 
 export const useUIStore = create<UIState>()(
   subscribeWithSelector(
-    immer((set, get) => ({
+    immer((set) => ({
       // Initial state
       activeTool: 'select',
       transformMode: 'translate',

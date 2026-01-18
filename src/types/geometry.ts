@@ -26,6 +26,37 @@ export type RGBA = [number, number, number, number];
 export type UUID = string; // crypto.randomUUID() format
 export type DatabaseId = number; // SQLite rowid
 
+export interface ArrayConfig {
+  pattern: 'rectangular' | 'hexagonal' | 'circular';
+  // Rectangular/Hex
+  rows: number;
+  cols: number;
+  rowSpacing: number;
+  colSpacing: number;
+  // Circular
+  radius: number;
+  count: number;
+  startAngle: number;
+  // Common
+  includeSource: boolean;
+  autoConnect: 'none' | 'series' | 'parallel';
+}
+
+export interface AutoConnectConfig {
+  mode: 'series' | 'parallel' | 'series-first' | 'parallel-first';
+  maxDistance: number; // mm - max gap between terminals
+  respectGroups: boolean; // Only connect within groups
+  skipExisting: boolean; // Don't duplicate connections
+}
+
+export interface Measurement {
+  type: 'distance' | 'angle' | 'area' | 'volume';
+  points: Vector3[];
+  value: number;
+  unit: string;
+  displayPosition: Vector3;
+}
+
 export interface HexGridConfig {
   cellDiameter: number;
   padding: number; // Gap between cells

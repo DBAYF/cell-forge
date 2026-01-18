@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSceneStore, useUIStore, useElectricalStore } from '../../stores';
 
 export function StatusBar() {

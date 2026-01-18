@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   File,
   Save,
@@ -7,15 +6,19 @@ import {
   Square,
   Circle,
   Link,
-  Scissors,
   Move,
   RotateCw,
   Scaling,
   Grid3X3,
   Magnet,
-  Lock
+  Copy,
+  Download
 } from 'lucide-react';
 import { useUIStore, useSceneStore } from '../../stores';
+import { ArrayTool } from '../../lib/tools';
+import { CellInstance } from '../../types/project';
+import { Exporters } from '../../lib/exporters';
+import { ProjectManager } from '../../lib/projectManager';
 
 export function Toolbar() {
   const activeTool = useUIStore((state) => state.activeTool);
@@ -30,6 +33,88 @@ export function Toolbar() {
 
   const undo = useSceneStore((state) => state.undo);
   const redo = useSceneStore((state) => state.redo);
+  const selectedUuids = useSceneStore((state) => state.selectedUuids);
+  const cells = useSceneStore((state) => state.cells);
+  const addCell = useSceneStore((state) => state.addCell);
+  const checkpoint = useSceneStore((state) => state.checkpoint);
+
+  const handleNewProject = async () => {
+    try {
+      const project = await ProjectManager.createNewProject('New Project');
+      ProjectManager.loadProjectIntoStores(project);
+    } catch (error) {
+      console.error('Failed to create new project:', error);
+      alert('Failed to create new project');
+    }
+  };
+
+  const handleSaveProject = async () => {
+    try {
+      const project = ProjectManager.getCurrentProject();
+      // In a real implementation, show file picker dialog
+      const path = `project${ProjectManager.getProjectExtension()}`;
+      await ProjectManager.saveProject(project, path);
+      alert('Project saved successfully!');
+    } catch (error) {
+      console.error('Failed to save project:', error);
+      alert('Failed to save project');
+    }
+  };
+
+  const handleArrayTool = () => {
+    const selectedCells = Array.from(selectedUuids)
+      .map(uuid => cells.get(uuid))
+      .filter(Boolean) as CellInstance[];
+
+    if (selectedCells.length === 0) {
+      alert('Please select at least one cell to create an array.');
+      return;
+    }
+
+    // Simple array creation - in real implementation, show a modal
+    const config = {
+      pattern: 'rectangular' as const,
+      rows: 3,
+      cols: 3,
+      rowSpacing: 20,
+      colSpacing: 20,
+      includeSource: false,
+      autoConnect: 'none' as const,
+    };
+
+    checkpoint('Create Array');
+    const result = ArrayTool.createArray(selectedCells, config);
+
+    // Add new cells to scene
+    result.cells.forEach(cell => {
+      addCell(cell.cellId, cell.position);
+    });
+  };
+
+  const handleExport = async () => {
+    const scene = useSceneStore.getState().getScene();
+
+    try {
+      // Export as STL
+      const stlData = Exporters.exportSTL(scene, {
+        selection: 'all',
+        mergeGeometries: true,
+        applyTransforms: true,
+        scale: 1,
+        fileName: 'export.stl'
+      });
+
+      // In a real implementation, this would trigger a file download
+      // For now, just log the data size
+      console.log(`STL export generated ${stlData.length} bytes`);
+
+      // Show success message
+      alert('Export completed! Check console for data size.');
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed: ' + error);
+    }
+  };
 
   return (
     <div className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center space-x-2">
@@ -38,14 +123,23 @@ export function Toolbar() {
         <button
           className="p-2 hover:bg-gray-700 rounded transition-colors"
           title="New Project"
+          onClick={handleNewProject}
         >
           <File className="w-4 h-4" />
         </button>
         <button
           className="p-2 hover:bg-gray-700 rounded transition-colors"
           title="Save Project"
+          onClick={handleSaveProject}
         >
           <Save className="w-4 h-4" />
+        </button>
+        <button
+          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          title="Export"
+          onClick={handleExport}
+        >
+          <Download className="w-4 h-4" />
         </button>
       </div>
 
@@ -104,6 +198,13 @@ export function Toolbar() {
           onClick={() => setActiveTool('transform')}
         >
           <Move className="w-4 h-4" />
+        </button>
+        <button
+          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          title="Array Tool"
+          onClick={handleArrayTool}
+        >
+          <Copy className="w-4 h-4" />
         </button>
       </div>
 

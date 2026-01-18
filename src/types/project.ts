@@ -1,12 +1,20 @@
-import { Vector3, Euler, Transform } from './geometry';
+import { Vector3, Euler, Transform as GeometryTransform } from './geometry';
 
 export interface CellInstance {
   uuid: string;
   cellId: number; // FK to cells table
   position: Vector3;
   rotation: Euler;
+  scale?: Vector3;
   customLabel?: string;
   groupId?: string;
+  // Cell properties for UI display (populated from database)
+  manufacturer?: string;
+  model?: string;
+  nominalVoltage?: number;
+  capacityMah?: number;
+  maxDischargeA?: number;
+  chemistry?: string;
 }
 
 export interface Connection {
@@ -99,3 +107,7 @@ export interface ImportResult {
   materials?: any[]; // THREE.Material[]
   error?: string;
 }
+
+// Re-export geometry types for convenience
+export type { Vector3, Euler, Transform } from './geometry';
+export type { ArrayConfig, AutoConnectConfig, Measurement } from './geometry';

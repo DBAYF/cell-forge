@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { TopologyResult } from '../types/electrical';
+import { ElectricalSolver } from '../lib/electricalSolver';
+import { useSceneStore } from './sceneStore';
 
 export interface ElectricalState {
   // Current topology result
@@ -19,7 +21,7 @@ export interface ElectricalState {
 
 export const useElectricalStore = create<ElectricalState>()(
   subscribeWithSelector(
-    immer((set, get) => ({
+    immer((set) => ({
       // Initial state
       topology: null,
       calculating: false,
@@ -32,26 +34,14 @@ export const useElectricalStore = create<ElectricalState>()(
         });
 
         try {
-          // TODO: Implement electrical topology calculation
-          // This will be implemented in the electrical solver module
-          const topology: TopologyResult = {
-            isValid: true,
-            errors: [],
-            warnings: [],
-            totalSeriesCells: 0,
-            totalParallelGroups: 0,
-            configuration: '0S0P',
-            nominalVoltage: 0,
-            maxVoltage: 0,
-            minVoltage: 0,
-            totalCapacityAh: 0,
-            totalEnergyWh: 0,
-            maxDischargeCurrent: 0,
-            graph: {
-              nodes: new Map(),
-              edges: new Map(),
-            },
-          };
+          // Get current scene data
+          const sceneState = useSceneStore.getState();
+          const cells = sceneState.cells;
+          const connections = sceneState.connections;
+
+          // Create and run solver
+          const solver = new ElectricalSolver(cells, connections);
+          const topology = solver.solve();
 
           set((state) => {
             state.topology = topology;

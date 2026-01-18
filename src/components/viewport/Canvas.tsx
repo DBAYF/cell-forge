@@ -1,17 +1,50 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
+import { Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { useSceneStore } from '../../stores';
 import { Scene } from './Scene';
 import { CameraController } from './CameraController';
+import { SelectionHandler } from './SelectionHandler';
+import { TransformGizmo } from './TransformGizmo';
 import { useUIStore } from '../../stores';
 
 export function ViewportCanvas() {
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
+  const activeTool = useUIStore((state) => state.activeTool);
+  const selectedUuids = useSceneStore((state) => state.selectedUuids);
+  const addCell = useSceneStore((state) => state.addCell);
+
+  // Handle drag and drop from library
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+
+    try {
+      const data = JSON.parse(event.dataTransfer.getData('application/json'));
+
+      if (data.type === 'cell') {
+        // Calculate drop position (simplified - should use raycasting)
+        const rect = event.currentTarget.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 200 - 100;
+        const z = ((event.clientY - rect.top) / rect.height) * 200 - 100;
+
+        addCell(data.cellId, [x, 0, z]);
+      }
+    } catch (error) {
+      console.error('Failed to handle drop:', error);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
 
   return (
-    <div className="w-full h-full bg-gray-900">
+    <div
+      className="w-full h-full bg-gray-900"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+    >
       <Canvas
         camera={{
           position: [100, 100, 100],
@@ -64,6 +97,14 @@ export function ViewportCanvas() {
         <Suspense fallback={null}>
           <Scene />
         </Suspense>
+
+        {/* Selection Handler */}
+        <SelectionHandler />
+
+        {/* Transform Gizmo */}
+        {selectedUuids.size > 0 && activeTool === 'transform' && (
+          <TransformGizmo />
+        )}
 
         {/* Gizmos */}
         <GizmoHelper

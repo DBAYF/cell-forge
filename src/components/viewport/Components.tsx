@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Component } from '../../types/project';
 import { generateMaterialTexture } from '../../lib/textureGenerators';
@@ -51,6 +51,7 @@ function ComponentMesh({ component }: ComponentMeshProps) {
       scale={component.scale}
       geometry={geometry}
       material={material}
+      userData={{ uuid: component.uuid }}
     />
   );
 }

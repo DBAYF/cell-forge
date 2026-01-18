@@ -7,10 +7,22 @@ import { OutlinerPanel } from './components/panels/OutlinerPanel';
 import { StatusBar } from './components/panels/StatusBar';
 import { TitleBar } from './components/ui/TitleBar';
 import { useUIStore } from './stores';
+import { useElectricalSolver } from './hooks/useElectricalSolver';
+import { KeyboardShortcuts } from './lib/keyboardShortcuts';
+import { Accessibility } from './lib/accessibility';
 
 function App() {
   const sidebarWidth = useUIStore((state) => state.sidebarWidth);
   const propertiesWidth = useUIStore((state) => state.propertiesWidth);
+
+  // Ensure electrical calculations are always up to date
+  useElectricalSolver();
+
+  // Initialize keyboard shortcuts and accessibility
+  React.useEffect(() => {
+    KeyboardShortcuts.init();
+    Accessibility.init();
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white overflow-hidden">

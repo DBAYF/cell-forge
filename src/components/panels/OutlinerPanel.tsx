@@ -52,8 +52,8 @@ export function OutlinerPanel() {
                 if (!member) return null;
 
                 const memberName = cell
-                  ? `${cell.manufacturer} ${cell.model}`
-                  : `Component ${component?.componentType}`;
+                  ? `${cell.manufacturer || 'Unknown'} ${cell.model || 'Cell'}`
+                  : `Component ${component?.componentType || 'Unknown'}`;
 
                 return (
                   <OutlinerItem
@@ -109,6 +109,10 @@ export function OutlinerPanel() {
               type="folder"
               expanded={expanded.has('connections')}
               onToggle={() => toggleExpanded('connections')}
+              selected={false}
+              onSelect={() => {}}
+              visible={true}
+              locked={false}
             >
               {connectionArray.map(connection => (
                 <OutlinerItem
@@ -144,7 +148,6 @@ interface OutlinerItemProps {
 }
 
 function OutlinerItem({
-  uuid,
   name,
   type,
   expanded,

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSceneStore } from '../../stores';
 import { InstancedCells } from './InstancedCells';
 import { ConnectionLines } from './ConnectionLines';

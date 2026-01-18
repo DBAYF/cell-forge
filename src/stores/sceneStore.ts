@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { CellInstance, Connection, Component, Group, Scene, Vector3, Transform } from '../types/project';
+import { useHistoryStore } from './historyStore';
 
 export interface SceneState {
   // Scene data
@@ -20,8 +21,12 @@ export interface SceneState {
   updateTransform: (uuid: string, transform: Partial<Transform>) => void;
   addConnection: (connection: Omit<Connection, 'uuid'>) => string;
   select: (uuids: string[], mode: 'replace' | 'add' | 'toggle') => void;
+  setHoveredUuid: (uuid: string | null) => void;
   group: (uuids: string[], name: string) => string;
   ungroup: (uuid: string) => void;
+  undo: () => void;
+  redo: () => void;
+  checkpoint: (label?: string) => void;
   duplicate: (uuids: string[]) => string[];
   clear: () => void;
 
@@ -157,6 +162,12 @@ export const useSceneStore = create<SceneState>()(
         });
       },
 
+      setHoveredUuid: (uuid: string | null) => {
+        set((state) => {
+          state.hoveredUuid = uuid;
+        });
+      },
+
       group: (uuids: string[], name: string) => {
         const uuid = crypto.randomUUID();
         const group: Group = {
@@ -255,6 +266,37 @@ export const useSceneStore = create<SceneState>()(
           state.selectedUuids.clear();
           state.hoveredUuid = null;
         });
+      },
+
+      undo: () => {
+        const historyStore = useHistoryStore.getState();
+        const restoredScene = historyStore.undo();
+        if (restoredScene) {
+          set((state) => {
+            state.cells = new Map(restoredScene.cells);
+            state.connections = new Map(restoredScene.connections);
+            state.components = new Map(restoredScene.components);
+            state.groups = new Map(restoredScene.groups);
+          });
+        }
+      },
+
+      redo: () => {
+        const historyStore = useHistoryStore.getState();
+        const restoredScene = historyStore.redo();
+        if (restoredScene) {
+          set((state) => {
+            state.cells = new Map(restoredScene.cells);
+            state.connections = new Map(restoredScene.connections);
+            state.components = new Map(restoredScene.components);
+            state.groups = new Map(restoredScene.groups);
+          });
+        }
+      },
+
+      checkpoint: (label) => {
+        const historyStore = useHistoryStore.getState();
+        historyStore.checkpoint(label);
       },
 
       // Utilities
