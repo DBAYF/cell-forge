@@ -7,7 +7,6 @@ import { useUIStore } from '../../stores';
 export function CameraController() {
   const { camera } = useThree();
   const controlsRef = useRef<any>();
-  const snapEnabled = useUIStore((state) => state.snapEnabled);
 
 
   useEffect(() => {
@@ -79,7 +78,7 @@ export function CameraController() {
         document.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [camera, snapEnabled]);
+  }, [camera]);
 
   return (
     <OrbitControls

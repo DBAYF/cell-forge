@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSceneStore, useUIStore } from '../../stores';
@@ -107,7 +107,7 @@ export function SelectionHandler() {
   }, [camera, cells, components, pointer, raycaster, scene, setHoveredUuid]);
 
   // Set up event listeners
-  React.useEffect(() => {
+  useEffect(() => {
     const canvas = document.querySelector('canvas');
     if (!canvas) return;
 
@@ -119,8 +119,8 @@ export function SelectionHandler() {
       handlePointerMove();
     };
 
-    const handleDblClick = (event: MouseEvent) => {
-      handleDoubleClick(event);
+    const handleDblClick = () => {
+      handleDoubleClick();
     };
 
     canvas.addEventListener('mousedown', handleMouseDown);

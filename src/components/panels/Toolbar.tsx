@@ -78,6 +78,9 @@ export function Toolbar() {
       cols: 3,
       rowSpacing: 20,
       colSpacing: 20,
+      radius: 0,
+      count: 0,
+      startAngle: 0,
       includeSource: false,
       autoConnect: 'none' as const,
     };

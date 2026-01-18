@@ -8,13 +8,10 @@ export function TransformGizmo() {
   const { scene } = useThree();
   const transformMode = useUIStore((state) => state.transformMode);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
-  const cells = useSceneStore((state) => state.cells);
-  const components = useSceneStore((state) => state.components);
   const updateTransform = useSceneStore((state) => state.updateTransform);
 
   const transformControlsRef = useRef<any>();
   const [targetObject, setTargetObject] = useState<THREE.Object3D | null>(null);
-  const transformControlsRef = useRef<any>();
 
   // Find the target object for transformation (first selected object)
   useEffect(() => {
@@ -53,20 +50,12 @@ export function TransformGizmo() {
     });
   };
 
-  // Configure snap settings
+  // Configure transform mode
   useEffect(() => {
     if (transformControlsRef.current) {
       transformControlsRef.current.setMode(transformMode);
-
-      if (transformMode === 'translate') {
-        transformControlsRef.current.setTranslationSnap(snapEnabled ? snapIncrement : null);
-      } else if (transformMode === 'rotate') {
-        transformControlsRef.current.setRotationSnap(snapEnabled ? Math.PI / 12 : null); // 15 degrees
-      } else if (transformMode === 'scale') {
-        // No snap for scale
-      }
     }
-  }, [transformMode, snapEnabled, snapIncrement]);
+  }, [transformMode]);
 
   if (!targetObject) return null;
 
