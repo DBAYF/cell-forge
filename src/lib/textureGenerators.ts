@@ -1,37 +1,88 @@
 import * as THREE from 'three';
 
 /**
- * Generate a simple colored texture for cells
+ * Generate a realistic battery texture for cells
  */
-export function generateCellTexture(color: string = '#4a90e2'): THREE.Texture {
+export function generateCellTexture(color: string = '#2563eb', manufacturer?: string, model?: string): THREE.Texture {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
+  canvas.width = 1024;
+  canvas.height = 1024;
   const context = canvas.getContext('2d')!;
 
-  // Create gradient background
-  const gradient = context.createLinearGradient(0, 0, 512, 512);
-  gradient.addColorStop(0, color);
-  gradient.addColorStop(0.5, lightenColor(color, 0.2));
-  gradient.addColorStop(1, darkenColor(color, 0.1));
+  // Create metallic cylindrical battery appearance
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = canvas.width * 0.4;
 
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, 512, 512);
+  // Create cylindrical gradient (simulating curved surface)
+  for (let y = 0; y < canvas.height; y++) {
+    const normalizedY = (y - centerY) / radius;
+    const distanceFromCenter = Math.abs(normalizedY);
 
-  // Add some texture/detail
-  context.fillStyle = 'rgba(255, 255, 255, 0.1)';
-  for (let i = 0; i < 20; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 512;
-    const size = Math.random() * 50 + 10;
+    // Create cylindrical lighting effect
+    const lightIntensity = Math.max(0.3, 1 - distanceFromCenter * 0.7);
+    const shadowIntensity = Math.max(0.1, distanceFromCenter * 0.3);
+
+    const r = Math.floor(parseInt(color.slice(1, 3), 16) * lightIntensity * (1 - shadowIntensity * 0.5));
+    const g = Math.floor(parseInt(color.slice(3, 5), 16) * lightIntensity * (1 - shadowIntensity * 0.5));
+    const b = Math.floor(parseInt(color.slice(5, 7), 16) * lightIntensity * (1 - shadowIntensity * 0.5));
+
+    context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    context.fillRect(0, y, canvas.width, 1);
+  }
+
+  // Add metallic highlights
+  const highlightGradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  highlightGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.1)');
+  highlightGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.05)');
+  highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
+
+  context.fillStyle = highlightGradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Add subtle texture/noise
+  context.fillStyle = 'rgba(255, 255, 255, 0.03)';
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const size = Math.random() * 2 + 0.5;
     context.beginPath();
     context.arc(x, y, size, 0, Math.PI * 2);
     context.fill();
   }
 
+  // Add manufacturer branding if provided
+  if (manufacturer && model) {
+    context.save();
+    context.translate(centerX, centerY);
+
+    // Manufacturer name
+    context.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    context.font = 'bold 24px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(manufacturer.toUpperCase(), 0, -15);
+
+    // Model name
+    context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    context.font = '16px Arial';
+    context.fillText(model, 0, 10);
+
+    context.restore();
+  }
+
+  // Add warning label
+  context.fillStyle = 'rgba(255, 255, 0, 0.8)';
+  context.font = 'bold 14px Arial';
+  context.textAlign = 'center';
+  context.fillText('LITHIUM', centerX, canvas.height - 40);
+  context.fillText('BATTERY', centerX, canvas.height - 25);
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 16;
   return texture;
 }
 

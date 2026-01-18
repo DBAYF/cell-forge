@@ -12,7 +12,9 @@ import {
   Grid3X3,
   Magnet,
   Copy,
-  Download
+  Download,
+  Zap,
+  Cable
 } from 'lucide-react';
 import { useUIStore, useSceneStore } from '../../stores';
 import { ArrayTool } from '../../lib/tools';
@@ -120,147 +122,165 @@ export function Toolbar() {
   };
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center space-x-2">
+    <div className="bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm border-b border-slate-600/30 px-6 py-3 flex items-center space-x-3 shadow-lg">
       {/* File Operations */}
-      <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-2">
+      <div className="flex items-center space-x-2 border-r border-slate-500/30 pr-4 mr-4">
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
           title="New Project"
           onClick={handleNewProject}
         >
-          <File className="w-4 h-4" />
+          <File className="w-5 h-5 text-slate-300 hover:text-blue-300" />
         </button>
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
           title="Save Project"
           onClick={handleSaveProject}
         >
-          <Save className="w-4 h-4" />
+          <Save className="w-5 h-5 text-slate-300 hover:text-green-300" />
         </button>
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
           title="Export"
           onClick={handleExport}
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-5 h-5 text-slate-300 hover:text-purple-300" />
         </button>
       </div>
 
       {/* Edit Operations */}
       <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-2">
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
           title="Undo"
           onClick={() => undo()}
         >
-          <Undo className="w-4 h-4" />
+          <Undo className="w-5 h-5 text-slate-300 hover:text-orange-300" />
         </button>
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
           title="Redo"
           onClick={() => redo()}
         >
-          <Redo className="w-4 h-4" />
+          <Redo className="w-5 h-5 text-slate-300 hover:text-orange-300" />
         </button>
       </div>
 
       {/* Tool Selection */}
-      <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-2">
+      <div className="flex items-center space-x-2 border-r border-slate-500/30 pr-4 mr-4">
         <button
-          className={`p-2 rounded transition-colors ${
-            activeTool === 'select' ? 'bg-blue-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            activeTool === 'select'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+              : 'hover:bg-slate-700/50 text-slate-300 hover:text-blue-300'
           }`}
-          title="Select Tool"
+          title="Select Tool (V)"
           onClick={() => setActiveTool('select')}
         >
-          <Square className="w-4 h-4" />
+          <Square className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            activeTool === 'add' ? 'bg-blue-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            activeTool === 'add'
+              ? 'bg-green-600 text-white shadow-lg shadow-green-500/25'
+              : 'hover:bg-slate-700/50 text-slate-300 hover:text-green-300'
           }`}
-          title="Add Cell"
+          title="Add Cell (A)"
           onClick={() => setActiveTool('add')}
         >
-          <Circle className="w-4 h-4" />
+          <Circle className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            activeTool === 'connect' ? 'bg-blue-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            activeTool === 'connect'
+              ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-500/25'
+              : 'hover:bg-slate-700/50 text-slate-300 hover:text-yellow-300'
           }`}
-          title="Connect Tool"
+          title="Connect Wire (C)"
           onClick={() => setActiveTool('connect')}
         >
-          <Link className="w-4 h-4" />
+          <Zap className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            activeTool === 'transform' ? 'bg-blue-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            activeTool === 'transform'
+              ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
+              : 'hover:bg-slate-700/50 text-slate-300 hover:text-purple-300'
           }`}
-          title="Transform Tool"
+          title="Transform (T)"
           onClick={() => setActiveTool('transform')}
         >
-          <Move className="w-4 h-4" />
+          <Move className="w-5 h-5" />
         </button>
         <button
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md text-slate-300 hover:text-indigo-300"
           title="Array Tool"
           onClick={handleArrayTool}
         >
-          <Copy className="w-4 h-4" />
+          <Copy className="w-5 h-5" />
         </button>
       </div>
 
       {/* Transform Modes */}
-      <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-2">
+      <div className="flex items-center space-x-2 border-r border-slate-500/30 pr-4 mr-4">
         <button
-          className={`p-2 rounded transition-colors ${
-            transformMode === 'translate' ? 'bg-green-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            transformMode === 'translate'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+              : 'hover:bg-slate-700/50 text-slate-400 hover:text-emerald-300'
           }`}
           title="Translate (G)"
           onClick={() => setTransformMode('translate')}
         >
-          <Move className="w-4 h-4" />
+          <Move className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            transformMode === 'rotate' ? 'bg-green-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            transformMode === 'rotate'
+              ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/25'
+              : 'hover:bg-slate-700/50 text-slate-400 hover:text-amber-300'
           }`}
           title="Rotate (R)"
           onClick={() => setTransformMode('rotate')}
         >
-          <RotateCw className="w-4 h-4" />
+          <RotateCw className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            transformMode === 'scale' ? 'bg-green-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            transformMode === 'scale'
+              ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/25'
+              : 'hover:bg-slate-700/50 text-slate-400 hover:text-rose-300'
           }`}
           title="Scale (S)"
           onClick={() => setTransformMode('scale')}
         >
-          <Scaling className="w-4 h-4" />
+          <Scaling className="w-5 h-5" />
         </button>
       </div>
 
       {/* View Options */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-2">
         <button
-          className={`p-2 rounded transition-colors ${
-            gridVisible ? 'bg-yellow-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            gridVisible
+              ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/25'
+              : 'hover:bg-slate-700/50 text-slate-400 hover:text-cyan-300'
           }`}
           title="Toggle Grid"
           onClick={() => setGridVisible(!gridVisible)}
         >
-          <Grid3X3 className="w-4 h-4" />
+          <Grid3X3 className="w-5 h-5" />
         </button>
         <button
-          className={`p-2 rounded transition-colors ${
-            snapEnabled ? 'bg-yellow-600' : 'hover:bg-gray-700'
+          className={`p-2.5 rounded-lg transition-all duration-200 ${
+            snapEnabled
+              ? 'bg-pink-600 text-white shadow-lg shadow-pink-500/25'
+              : 'hover:bg-slate-700/50 text-slate-400 hover:text-pink-300'
           }`}
           title="Toggle Snap"
           onClick={() => setSnapEnabled(!snapEnabled)}
         >
-          <Magnet className="w-4 h-4" />
+          <Magnet className="w-5 h-5" />
         </button>
       </div>
     </div>

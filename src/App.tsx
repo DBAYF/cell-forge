@@ -25,7 +25,7 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white overflow-hidden">
       {/* Title Bar */}
       <TitleBar />
 
@@ -33,7 +33,7 @@ function App() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Library */}
         <div
-          className="bg-gray-800 border-r border-gray-700 flex flex-col"
+          className="bg-gradient-to-b from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-r border-slate-700/50 flex flex-col shadow-2xl"
           style={{ width: sidebarWidth }}
         >
           <LibraryBrowser />
@@ -45,8 +45,16 @@ function App() {
           <Toolbar />
 
           {/* Viewport */}
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <ViewportCanvas />
+            {/* Design Workspace Overlay */}
+            <div className="absolute top-4 left-4 bg-black/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+              <div className="flex items-center space-x-2 text-sm text-blue-300">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="font-medium">Battery Design Workspace</span>
+              </div>
+              <div className="text-xs text-slate-400 mt-1">Drag cells from library • Connect with wires • Export designs</div>
+            </div>
           </div>
 
           {/* Status Bar */}
@@ -55,7 +63,7 @@ function App() {
 
         {/* Right Sidebar - Properties */}
         <div
-          className="bg-gray-800 border-l border-gray-700 flex flex-col"
+          className="bg-gradient-to-b from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-l border-slate-700/50 flex flex-col shadow-2xl"
           style={{ width: propertiesWidth }}
         >
           <PropertiesPanel />
@@ -63,7 +71,7 @@ function App() {
       </div>
 
       {/* Bottom Panel - Outliner (could be dockable) */}
-      <div className="h-48 bg-gray-800 border-t border-gray-700">
+      <div className="h-48 bg-gradient-to-t from-slate-900/95 to-slate-800/90 backdrop-blur-sm border-t border-slate-700/50 shadow-2xl">
         <OutlinerPanel />
       </div>
     </div>

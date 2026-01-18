@@ -41,10 +41,15 @@ export function ViewportCanvas() {
 
   return (
     <div
-      className="w-full h-full bg-gray-900"
+      className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 relative overflow-hidden"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+      </div>
       <Canvas
         camera={{
           position: [100, 100, 100],
@@ -60,18 +65,32 @@ export function ViewportCanvas() {
         dpr={[1, 2]}
         shadows={false} // Disable shadows for performance
       >
-        {/* Lighting */}
-        <ambientLight intensity={0.4} />
+        {/* Professional Lighting Setup */}
+        <ambientLight intensity={0.3} color="#e8f4fd" />
         <directionalLight
-          position={[10, 10, 5]}
-          intensity={0.8}
+          position={[10, 10, 8]}
+          intensity={1.2}
+          color="#ffffff"
           castShadow={false}
         />
         <directionalLight
-          position={[-10, -10, -5]}
-          intensity={0.3}
+          position={[-8, -8, -5]}
+          intensity={0.4}
+          color="#a5d6ff"
           castShadow={false}
         />
+        <pointLight
+          position={[0, 5, 0]}
+          intensity={0.5}
+          color="#87ceeb"
+          distance={50}
+        />
+
+        {/* Environment for reflections */}
+        <mesh position={[0, 0, 0]} visible={false}>
+          <sphereGeometry args={[100, 32, 32]} />
+          <meshBasicMaterial color="#e8f4fd" side={THREE.BackSide} />
+        </mesh>
 
         {/* Camera Controls */}
         <CameraController />

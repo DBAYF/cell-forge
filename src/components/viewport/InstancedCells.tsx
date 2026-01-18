@@ -48,10 +48,13 @@ export function InstancedCells({ cells }: InstancedCellsProps) {
           formFactor: '18650'
         });
 
-        // Create material with texture
-        const texture = generateCellTexture('#4a90e2');
-        const material = new THREE.MeshLambertMaterial({
+        // Create material with realistic battery texture
+        const texture = generateCellTexture('#1e40af', 'BATTERY', 'CELL');
+        const material = new THREE.MeshPhysicalMaterial({
           map: texture,
+          metalness: 0.7,
+          roughness: 0.3,
+          envMapIntensity: 0.5,
         });
 
               // Create instanced mesh
@@ -138,8 +141,13 @@ function CellMesh({ cell }: CellMeshProps) {
   }), []);
 
   const material = useMemo(() => {
-    const texture = generateCellTexture('#4a90e2');
-    return new THREE.MeshLambertMaterial({ map: texture });
+    const texture = generateCellTexture('#1e40af', 'BATTERY', 'CELL');
+    return new THREE.MeshPhysicalMaterial({
+      map: texture,
+      metalness: 0.7,
+      roughness: 0.3,
+      envMapIntensity: 0.5,
+    });
   }, []);
 
   useEffect(() => {

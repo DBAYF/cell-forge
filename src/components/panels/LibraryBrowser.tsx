@@ -51,16 +51,26 @@ export function LibraryBrowser() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
-        <h2 className="text-lg font-semibold mb-3">Library</h2>
+      <div className="p-6 border-b border-slate-600/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+            <Battery className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+              Component Library
+            </h2>
+            <p className="text-sm text-slate-400">Drag & drop to design</p>
+          </div>
+        </div>
 
         {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded text-sm focus:outline-none focus:border-blue-500"
+            placeholder="Search batteries, BMS, shapes..."
+            className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50 backdrop-blur-sm placeholder-slate-500"
             value={librarySearch}
             onChange={(e) => setLibrarySearch(e.target.value)}
           />
@@ -73,15 +83,15 @@ export function LibraryBrowser() {
             return (
               <button
                 key={tab.id}
-                className={`flex items-center space-x-2 px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex items-center space-x-2 px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
                   libraryTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50 hover:shadow-md'
                 }`}
                 onClick={() => setLibraryTab(tab.id)}
               >
                 <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
+                <span className="font-medium">{tab.label}</span>
               </button>
             );
           })}
@@ -136,26 +146,83 @@ function CellItem({ cell }: CellItemProps) {
     }));
   };
 
+  // Color coding based on chemistry
+  const chemistryColor = {
+    'NMC': 'from-blue-500 to-blue-600',
+    'LFP': 'from-green-500 to-green-600',
+    'LCO': 'from-red-500 to-red-600',
+    'LMO': 'from-orange-500 to-orange-600',
+    'NCA': 'from-purple-500 to-purple-600',
+  }[cell.chemistry] || 'from-gray-500 to-gray-600';
+
   return (
     <div
-      className="p-3 bg-gray-700 rounded border border-gray-600 hover:border-gray-500 cursor-pointer transition-colors"
+      className="group relative p-4 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-600/30 hover:border-blue-400/50 cursor-move transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02]"
       draggable
       onDragStart={handleDragStart}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className="font-medium text-sm">
-          {cell.manufacturer} {cell.model}
+      {/* Battery Visual Representation */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          {/* 3D Battery Icon */}
+          <div className={`w-10 h-6 bg-gradient-to-r ${chemistryColor} rounded-sm relative shadow-lg`}>
+            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-t-sm"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-sm"></div>
+          </div>
+
+          <div>
+            <div className="font-semibold text-white text-sm leading-tight">
+              {cell.manufacturer}
+            </div>
+            <div className="text-blue-300 text-xs font-medium">
+              {cell.model}
+            </div>
+          </div>
         </div>
-        <div className="text-xs text-gray-400">
-          {cell.form_factor}
+
+        <div className="text-right">
+          <div className="text-xs text-slate-400 font-medium">
+            {cell.form_factor}
+          </div>
+          <div className="text-xs text-green-400 font-medium">
+            {cell.capacity_mah}mAh
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
-        <div>V: {cell.nominal_voltage}V</div>
-        <div>C: {cell.capacity_mah}mAh</div>
-        <div>Chem: {cell.chemistry}</div>
-        <div>Size: {cell.diameter_mm}×{cell.length_mm}mm</div>
+      {/* Battery Stats */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="flex items-center justify-between bg-slate-700/50 rounded-lg px-2 py-1">
+          <span className="text-xs text-slate-400">Voltage</span>
+          <span className="text-xs font-semibold text-blue-300">{cell.nominal_voltage}V</span>
+        </div>
+        <div className="flex items-center justify-between bg-slate-700/50 rounded-lg px-2 py-1">
+          <span className="text-xs text-slate-400">Chemistry</span>
+          <span className="text-xs font-semibold text-purple-300">{cell.chemistry}</span>
+        </div>
+      </div>
+
+      {/* Size & Performance */}
+      <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center space-x-1">
+          <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+          <span className="text-slate-400">
+            {cell.diameter_mm}×{cell.length_mm}mm
+          </span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <span className="text-green-400 font-medium">
+            {cell.max_discharge_a}A
+          </span>
+          <span className="text-slate-500">discharge</span>
+        </div>
+      </div>
+
+      {/* Drag Indicator */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
+          <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     </div>
   );

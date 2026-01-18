@@ -30,15 +30,31 @@ export function PropertiesPanel() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
-        <h2 className="text-lg font-semibold">Properties</h2>
+      <div className="p-6 border-b border-slate-600/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+            <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center text-xs font-bold text-blue-600">
+              P
+            </div>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+              Properties
+            </h2>
+            <p className="text-sm text-slate-400">Object details & settings</p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-6">
         {!selectedObject ? (
-          <div className="text-center text-gray-400 py-8">
-            Select an object to view its properties
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-8 h-8 border-2 border-slate-500 border-t-blue-400 rounded-full animate-spin"></div>
+            </div>
+            <div className="text-slate-400 font-medium mb-2">No Selection</div>
+            <div className="text-slate-500 text-sm">Click on a battery or component to view its properties</div>
           </div>
         ) : (
           <div className="space-y-4">
