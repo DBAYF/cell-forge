@@ -205,19 +205,10 @@ export const webApi = {
 };
 
 // Check if we're running in Tauri or web
-export const isTauri = typeof window !== 'undefined' && window.__TAURI__ !== undefined;
+export const isTauri = typeof window !== 'undefined' && (window as any).__TAURI__ !== undefined;
 
-// Dynamic import for Tauri API
-let invoke: any = null;
-
-if (isTauri) {
-  try {
-    const tauriApi = await import('@tauri-apps/api/core');
-    invoke = tauriApi.invoke;
-  } catch (e) {
-    console.warn('Tauri API not available, using web fallback');
-  }
-}
+// For web builds, always use web fallback
+const invoke: any = null;
 
 // Unified API that uses Tauri when available, web API otherwise
 export const api = {

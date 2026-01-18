@@ -1,7 +1,7 @@
-import { invoke } from '@tauri-apps/api/core';
 import { ProjectFile, ProjectMetadata, Scene, Settings, Camera } from '../types/project';
 import { useSceneStore } from '../stores/sceneStore';
 import { useUIStore } from '../stores/uiStore';
+import { api } from './webApi';
 
 /**
  * Project management utilities for save/load operations
@@ -15,8 +15,7 @@ export class ProjectManager {
    */
   static async createNewProject(name: string): Promise<ProjectFile> {
     try {
-      const project = await invoke('create_new_project', { name }) as ProjectFile;
-      return project;
+      return await api.createNewProject(name);
     } catch (error) {
       console.error('Failed to create new project:', error);
       throw error;
@@ -28,7 +27,7 @@ export class ProjectManager {
    */
   static async saveProject(project: ProjectFile, path: string): Promise<void> {
     try {
-      await invoke('save_project', { project, path });
+      await api.saveProject(project, path);
     } catch (error) {
       console.error('Failed to save project:', error);
       throw error;
@@ -40,8 +39,7 @@ export class ProjectManager {
    */
   static async loadProject(path: string): Promise<ProjectFile> {
     try {
-      const project = await invoke('load_project', { path }) as ProjectFile;
-      return project;
+      return await api.loadProject(path);
     } catch (error) {
       console.error('Failed to load project:', error);
       throw error;

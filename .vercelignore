@@ -1,0 +1,20 @@
+# Exclude Tauri-specific files
+src-tauri/
+*.rs
+Cargo.toml
+tauri.conf.json
+
+# Exclude unnecessary files
+.vscode/
+.github/
+*.md
+*.log
+
+# Keep only web-relevant files
+!src/
+!public/
+!package.json
+!vite.config.ts
+!tsconfig.json
+!tailwind.config.js
+!postcss.config.js
