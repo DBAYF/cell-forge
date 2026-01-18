@@ -1,5 +1,6 @@
 import { ArrayConfig, AutoConnectConfig, Measurement, Vector3, CellInstance, Connection } from '../types/project';
 import { generateHexGridPositions, generateRectangularGridPositions } from './meshGenerators';
+import * as THREE from 'three';
 
 /**
  * Array Tool - Creates multiple copies of cells in various patterns
@@ -13,11 +14,11 @@ export class ArrayTool {
     const connections: Connection[] = [];
 
     // Generate positions based on pattern
-    let positions: Vector3[] = [];
+    let threePositions: THREE.Vector3[] = [];
 
     switch (config.pattern) {
       case 'rectangular':
-        positions = generateRectangularGridPositions(
+        threePositions = generateRectangularGridPositions(
           config.rows,
           config.cols,
           config.rowSpacing,
@@ -26,7 +27,7 @@ export class ArrayTool {
         break;
 
       case 'hexagonal':
-        positions = generateHexGridPositions(
+        threePositions = generateHexGridPositions(
           config.rows,
           config.cols,
           config.rowSpacing
@@ -34,13 +35,16 @@ export class ArrayTool {
         break;
 
       case 'circular':
-        positions = this.generateCircularPositions(
+        threePositions = this.generateCircularPositions(
           config.count,
           config.radius,
           config.startAngle
         );
         break;
     }
+
+    // Convert THREE.Vector3[] to Vector3[]
+    const positions: Vector3[] = threePositions.map(pos => [pos.x, pos.y, pos.z]);
 
     // Create cells at each position
     let cellIndex = 0;
@@ -75,17 +79,17 @@ export class ArrayTool {
     count: number,
     radius: number,
     startAngle: number = 0
-  ): Vector3[] {
-    const positions: Vector3[] = [];
+  ): THREE.Vector3[] {
+    const positions: THREE.Vector3[] = [];
     const angleStep = (Math.PI * 2) / count;
 
     for (let i = 0; i < count; i++) {
       const angle = startAngle + (i * angleStep);
-      positions.push([
+      positions.push(new THREE.Vector3(
         Math.cos(angle) * radius,
         0,
         Math.sin(angle) * radius,
-      ]);
+      ));
     }
 
     return positions;

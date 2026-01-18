@@ -18,6 +18,7 @@ import { useUIStore, useSceneStore } from '../../stores';
 import { ArrayTool } from '../../lib/tools';
 import { CellInstance } from '../../types/project';
 import { Exporters } from '../../lib/exporters';
+import { api } from '../../lib/webApi';
 import { ProjectManager } from '../../lib/projectManager';
 
 export function Toolbar() {
@@ -40,7 +41,7 @@ export function Toolbar() {
 
   const handleNewProject = async () => {
     try {
-      const project = await ProjectManager.createNewProject('New Project');
+      const project = await api.createNewProject('New Project');
       ProjectManager.loadProjectIntoStores(project);
     } catch (error) {
       console.error('Failed to create new project:', error);
@@ -51,9 +52,9 @@ export function Toolbar() {
   const handleSaveProject = async () => {
     try {
       const project = ProjectManager.getCurrentProject();
-      // In a real implementation, show file picker dialog
-      const path = `project${ProjectManager.getProjectExtension()}`;
-      await ProjectManager.saveProject(project, path);
+      // In web version, save to localStorage
+      const path = 'project.cellforge';
+      await api.saveProject(project, path);
       alert('Project saved successfully!');
     } catch (error) {
       console.error('Failed to save project:', error);
@@ -107,12 +108,11 @@ export function Toolbar() {
         fileName: 'export.stl'
       });
 
-      // In a real implementation, this would trigger a file download
-      // For now, just log the data size
-      console.log(`STL export generated ${stlData.length} bytes`);
+      // Use unified API for export
+      await api.exportSTL(stlData, 'export.stl');
 
       // Show success message
-      alert('Export completed! Check console for data size.');
+      alert('Export completed! File downloaded.');
     } catch (error) {
       console.error('Export failed:', error);
       alert('Export failed: ' + error);

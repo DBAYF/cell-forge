@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Battery, Cpu, Shapes, Wrench } from 'lucide-react';
 import { useUIStore } from '../../stores';
 import { Cell } from '../../types/cell';
+import { api } from '../../lib/webApi';
 
 export function LibraryBrowser() {
   const libraryTab = useUIStore((state) => state.libraryTab);
@@ -12,47 +13,21 @@ export function LibraryBrowser() {
   const [cells, setCells] = useState<Cell[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for now - in real implementation, fetch from Tauri backend
+  // Fetch cells from API (Tauri or web fallback)
   useEffect(() => {
-    const mockCells: Cell[] = [
-      {
-        id: 1,
-        manufacturer: 'Samsung',
-        model: '30Q',
-        form_factor: '18650',
-        chemistry: 'NMC',
-        nominal_voltage: 3.6,
-        max_voltage: 4.2,
-        min_voltage: 2.5,
-        capacity_mah: 3000,
-        max_discharge_a: 15,
-        max_charge_a: 4,
-        internal_res_mohm: 20,
-        weight_g: 48,
-        diameter_mm: 18.3,
-        length_mm: 65.2,
-      },
-      {
-        id: 2,
-        manufacturer: 'LG',
-        model: 'HG2',
-        form_factor: '18650',
-        chemistry: 'NMC',
-        nominal_voltage: 3.6,
-        max_voltage: 4.2,
-        min_voltage: 2.5,
-        capacity_mah: 3000,
-        max_discharge_a: 20,
-        max_charge_a: 4,
-        internal_res_mohm: 18,
-        weight_g: 48,
-        diameter_mm: 18.3,
-        length_mm: 65.2,
-      },
-    ];
+    const fetchCells = async () => {
+      try {
+        const cellData = await api.getCells();
+        setCells(cellData);
+      } catch (error) {
+        console.error('Failed to fetch cells:', error);
+        setCells([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setCells(mockCells);
-    setLoading(false);
+    fetchCells();
   }, []);
 
   const filteredCells = cells.filter(cell => {
