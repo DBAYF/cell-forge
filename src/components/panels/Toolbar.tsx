@@ -37,15 +37,22 @@ export function Toolbar() {
   const handleNewProject = () => {
     const { clearScene } = useSceneStore.getState();
     clearScene();
-    alert('New project created');
+    // Reset UI state
+    setActiveTool('select');
+    setTransformMode('translate');
+    setSnapEnabled(true);
+    setGridVisible(true);
+    console.log('New project created');
   };
 
   const handleSaveProject = () => {
-    alert('Project saved successfully!');
+    // TODO: Implement actual save functionality
+    console.log('Save project functionality to be implemented');
   };
 
   const handleExport = () => {
-    alert('Export completed! File downloaded.');
+    // TODO: Implement actual export functionality
+    console.log('Export functionality to be implemented');
   };
 
   return (

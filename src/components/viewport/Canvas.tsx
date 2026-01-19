@@ -25,8 +25,7 @@ function CanvasContent() {
   const activeTool = useUIStore((state) => state.activeTool);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
-  const selectCell = useSceneStore((state) => state.selectCell);
-  const clearSelection = useSceneStore((state) => state.clearSelection);
+  const selectObjects = useSceneStore((state) => state.select);
 
   // Mouse coordinate state
   const [mouseCoords, setMouseCoords] = useState<MouseCoords>({
@@ -303,11 +302,45 @@ export function ViewportCanvas() {
   const handlePointerDown = useCallback((event: React.PointerEvent) => {
     event.preventDefault();
 
-    if (event.button === 0 || event.pointerType === 'touch') { // Left click or touch for battery component selection
-      // Handle battery component selection and creation
-      console.log('Battery design interaction:', activeTool);
+    if (event.button === 0 || event.pointerType === 'touch') { // Left click or touch for battery component interaction
+      const rect = event.currentTarget.getBoundingClientRect();
+      const screenX = event.clientX - rect.left;
+      const screenY = event.clientY - rect.top;
+      const normalizedX = (screenX / rect.width) * 2 - 1;
+      const normalizedY = -(screenY / rect.height) * 2 + 1;
+
+      const intersection = raycastBatteryComponents(normalizedX, normalizedY);
+
+      if (activeTool === 'add-cell') {
+        // Add a new battery cell at the clicked position
+        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const worldPos = new THREE.Vector3();
+        raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
+        raycaster.ray.intersectPlane(groundPlane, worldPos);
+
+        // Add cell at grid-snapped position
+        const gridSnapped = new THREE.Vector3(
+          Math.round(worldPos.x / gridSize) * gridSize,
+          0,
+          Math.round(worldPos.z / gridSize) * gridSize
+        );
+
+        addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]); // Default cell ID = 1
+        console.log('Added battery cell at:', gridSnapped);
+      } else if (intersection) {
+        // Select the intersected object
+        const uuid = intersection.object.userData?.uuid;
+        if (uuid) {
+          selectObjects([uuid], 'replace');
+          console.log('Selected object:', uuid);
+        }
+      } else {
+        // Clicked on empty space - clear selection
+        selectObjects([], 'replace');
+        console.log('Cleared selection');
+      }
     }
-  }, [activeTool]);
+  }, [activeTool, raycastBatteryComponents, camera, raycaster, gridSize, addCell, selectObjects]);
 
   // Touch-specific handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
