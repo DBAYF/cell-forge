@@ -294,30 +294,48 @@ export function ViewportCanvas() {
       const normalizedX = (screenX / rect.width) * 2 - 1;
       const normalizedY = -(screenY / rect.height) * 2 + 1;
 
+      // Try to select existing objects first (for all tools)
+      const intersection = raycastBatteryComponents(normalizedX, normalizedY);
+
       if (activeTool === 'add-cell') {
-        // Add a new battery cell at the clicked position
-        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const worldPos = new THREE.Vector3();
-        raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
-        raycaster.ray.intersectPlane(groundPlane, worldPos);
+        // Add a new battery cell at the clicked position (only if not clicking on existing object)
+        if (!intersection) {
+          const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+          const worldPos = new THREE.Vector3();
+          raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
+          raycaster.ray.intersectPlane(groundPlane, worldPos);
 
-        // Add cell at grid-snapped position
-        const gridSnapped = new THREE.Vector3(
-          Math.round(worldPos.x / gridSize) * gridSize,
-          0,
-          Math.round(worldPos.z / gridSize) * gridSize
-        );
+          const gridSnapped = new THREE.Vector3(
+            Math.round(worldPos.x / gridSize) * gridSize,
+            0,
+            Math.round(worldPos.z / gridSize) * gridSize
+          );
 
-        addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
-        console.log('Added battery cell at:', gridSnapped);
+          addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
+          console.log('Added battery cell at:', gridSnapped);
+        }
+      } else if (activeTool === 'select' || activeTool === 'transform') {
+          // Handle object selection for select and transform tools
+          if (intersection) {
+            const uuid = intersection.object.userData?.uuid;
+            if (uuid) {
+              selectObjects([uuid], 'replace');
+              console.log('Selected object:', uuid);
+            }
+          } else {
+            // Clicked in empty space - clear selection
+            selectObjects([], 'replace');
+            console.log('Cleared selection');
+          }
       } else {
-        // For now, just clear selection when clicking in empty space
-        // TODO: Implement proper object selection with raycasting
-        selectObjects([], 'replace');
-        console.log('Cleared selection');
+        // Other tools - for now just clear selection if clicking empty space
+        if (!intersection) {
+          selectObjects([], 'replace');
+          console.log('Cleared selection');
+        }
       }
     }
-  }, [activeTool, camera, gl, raycaster, gridSize, addCell, selectObjects]);
+  }, [activeTool, raycastBatteryComponents, camera, gl, raycaster, gridSize, addCell, selectObjects]);
 
   // Touch-specific handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
