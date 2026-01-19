@@ -19,13 +19,18 @@ interface MouseCoords {
 }
 
 function CanvasContent() {
+  console.log('🎯 CanvasContent initializing...');
   const { camera, gl, scene, raycaster } = useThree();
+  console.log('🔦 Three.js context:', { camera: !!camera, gl: !!gl, scene: !!scene, raycaster: !!raycaster });
+
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
   const activeTool = useUIStore((state) => state.activeTool);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
   const selectObjects = useSceneStore((state) => state.select);
+
+  console.log('⚙️ CanvasContent state:', { gridVisible, gridSize, activeTool, selectedCount: selectedUuids.size });
 
   // Mouse coordinate state
   const [mouseCoords, setMouseCoords] = useState<MouseCoords>({
@@ -219,9 +224,9 @@ function CanvasContent() {
 }
 
 export function ViewportCanvas() {
-  console.log('ViewportCanvas rendering...');
-  console.log('THREE available:', typeof THREE);
-  console.log('THREE.Vector3 available:', typeof THREE?.Vector3);
+  console.log('🎨 ViewportCanvas rendering...');
+  console.log('📦 THREE available:', typeof THREE);
+  console.log('🔧 THREE.Vector3 available:', typeof THREE?.Vector3);
 
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
@@ -229,7 +234,13 @@ export function ViewportCanvas() {
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
 
-  console.log('Canvas state:', { gridVisible, gridSize, activeTool, selectedUuids: selectedUuids.size });
+  console.log('🎛️ Canvas state:', {
+    gridVisible,
+    gridSize,
+    activeTool,
+    selectedCount: selectedUuids.size,
+    hasAddCell: typeof addCell === 'function'
+  });
 
   // Ensure THREE.js is available
   useEffect(() => {
@@ -411,6 +422,11 @@ export function ViewportCanvas() {
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
+      </div>
+
+      {/* Debug indicator for 3D canvas */}
+      <div className="absolute top-2 right-2 z-40 bg-blue-500 text-white px-2 py-1 text-xs rounded shadow-lg">
+        🎨 3D Canvas Active
       </div>
 
       {/* Conditionally render Canvas only if THREE.js is available */}
