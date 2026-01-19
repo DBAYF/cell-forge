@@ -294,14 +294,14 @@ export function ViewportCanvas() {
       const normalizedX = (screenX / rect.width) * 2 - 1;
       const normalizedY = -(screenY / rect.height) * 2 + 1;
 
-      const intersection = raycastBatteryComponents(normalizedX, normalizedY);
-
       if (activeTool === 'add-cell') {
+        // Add a new battery cell at the clicked position
         const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         const worldPos = new THREE.Vector3();
         raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
         raycaster.ray.intersectPlane(groundPlane, worldPos);
 
+        // Add cell at grid-snapped position
         const gridSnapped = new THREE.Vector3(
           Math.round(worldPos.x / gridSize) * gridSize,
           0,
@@ -309,16 +309,15 @@ export function ViewportCanvas() {
         );
 
         addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
-      } else if (intersection) {
-        const uuid = intersection.object.userData?.uuid;
-        if (uuid) {
-          selectObjects([uuid], 'replace');
-        }
+        console.log('Added battery cell at:', gridSnapped);
       } else {
+        // For now, just clear selection when clicking in empty space
+        // TODO: Implement proper object selection with raycasting
         selectObjects([], 'replace');
+        console.log('Cleared selection');
       }
     }
-  }, [activeTool, raycastBatteryComponents, camera, gl, raycaster, gridSize, addCell, selectObjects]);
+  }, [activeTool, camera, gl, raycaster, gridSize, addCell, selectObjects]);
 
   // Touch-specific handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
