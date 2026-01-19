@@ -283,27 +283,12 @@ export function ViewportCanvas() {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
   const [isMultiTouch, setIsMultiTouch] = useState(false);
 
-  const handlePointerMove = useCallback((event: React.PointerEvent) => {
-    // Update coordinates and cursor for battery design interactions
-    const rect = event.currentTarget.getBoundingClientRect();
-    const clientX = event.clientX;
-    const clientY = event.clientY;
-    const screenX = clientX - rect.left;
-    const screenY = clientY - rect.top;
-
-    // Update cursor based on active tool and what's under mouse/touch
-    if (activeTool === 'add-cell' || activeTool === 'add-bms') {
-      setCursor('crosshair');
-    } else {
-      setCursor('default');
-    }
-  }, [activeTool]);
-
-  const handlePointerDown = useCallback((event: React.PointerEvent) => {
+  // Handle pointer events in Canvas (needs Three.js context)
+  const handleCanvasPointerDown = useCallback((event: any) => {
     event.preventDefault();
 
-    if (event.button === 0 || event.pointerType === 'touch') { // Left click or touch for battery component interaction
-      const rect = event.currentTarget.getBoundingClientRect();
+    if (event.button === 0 || event.pointerType === 'touch') {
+      const rect = gl.domElement.getBoundingClientRect();
       const screenX = event.clientX - rect.left;
       const screenY = event.clientY - rect.top;
       const normalizedX = (screenX / rect.width) * 2 - 1;
@@ -312,35 +297,28 @@ export function ViewportCanvas() {
       const intersection = raycastBatteryComponents(normalizedX, normalizedY);
 
       if (activeTool === 'add-cell') {
-        // Add a new battery cell at the clicked position
         const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         const worldPos = new THREE.Vector3();
         raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
         raycaster.ray.intersectPlane(groundPlane, worldPos);
 
-        // Add cell at grid-snapped position
         const gridSnapped = new THREE.Vector3(
           Math.round(worldPos.x / gridSize) * gridSize,
           0,
           Math.round(worldPos.z / gridSize) * gridSize
         );
 
-        addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]); // Default cell ID = 1
-        console.log('Added battery cell at:', gridSnapped);
+        addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
       } else if (intersection) {
-        // Select the intersected object
         const uuid = intersection.object.userData?.uuid;
         if (uuid) {
           selectObjects([uuid], 'replace');
-          console.log('Selected object:', uuid);
         }
       } else {
-        // Clicked on empty space - clear selection
         selectObjects([], 'replace');
-        console.log('Cleared selection');
       }
     }
-  }, [activeTool, raycastBatteryComponents, camera, raycaster, gridSize, addCell, selectObjects]);
+  }, [activeTool, raycastBatteryComponents, camera, gl, raycaster, gridSize, addCell, selectObjects]);
 
   // Touch-specific handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
@@ -409,8 +387,6 @@ export function ViewportCanvas() {
       style={{ cursor }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      onPointerMove={handlePointerMove}
-      onPointerDown={handlePointerDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -434,6 +410,7 @@ export function ViewportCanvas() {
           alpha: false,
           powerPreference: 'high-performance',
         }}
+        onPointerDown={handleCanvasPointerDown}
         dpr={[1, 2]}
         shadows={false} // Disable shadows for performance
       >
