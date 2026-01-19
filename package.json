@@ -1,14 +1,45 @@
 {
   "name": "cellforge",
-  "private": true,
-  "version": "0.1.0",
+  "private": false,
+  "version": "1.0.0",
+  "description": "Professional 3D Battery & Microelectronic CAD Software",
+  "author": "CellForge Technologies",
+  "license": "MIT",
+  "homepage": "https://cellforge.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cellforge/cellforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cellforge/cellforge/issues"
+  },
+  "keywords": [
+    "cad",
+    "3d",
+    "battery",
+    "design",
+    "engineering",
+    "electronics",
+    "manufacturing",
+    "tauri",
+    "react",
+    "threejs"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tauri": "npm run tauri dev",
     "build": "vite build",
     "build:strict": "tsc && vite build",
+    "build:tauri": "npm run tauri build",
+    "build:all": "npm run build:strict && npm run build:tauri",
     "preview": "vite preview",
     "tauri": "tauri",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write src/**/*.{ts,tsx}",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "vercel-build": "npm run build"
   },
   "dependencies": {

@@ -1,8 +1,41 @@
 import { Menu, Minimize2, Maximize2, X } from 'lucide-react';
 import { useUIStore } from '../../stores';
+import { useState, useEffect } from 'react';
 
 export function TitleBar() {
+  const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    // Compact mobile title bar
+    return (
+      <div className="bg-black/20 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between select-none">
+        <div className="flex items-center space-x-2">
+          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-xs">CF</span>
+          </div>
+          <span className="text-sm font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+            CellForge
+          </span>
+        </div>
+
+        <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 text-xs">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-green-300 text-xs">Ready</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop title bar
   return (
     <div className="bg-black/20 backdrop-blur-md border-b border-white/10 px-6 py-2 flex items-center justify-between select-none">
       {/* Left side - Logo and title */}

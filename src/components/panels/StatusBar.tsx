@@ -1,6 +1,9 @@
 import { useSceneStore, useUIStore, useElectricalStore } from '../../stores';
+import { useState, useEffect } from 'react';
 
 export function StatusBar() {
+  const [isMobile, setIsMobile] = useState(false);
+
   const cells = useSceneStore((state) => state.cells);
   const connections = useSceneStore((state) => state.connections);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
@@ -13,6 +16,44 @@ export function StatusBar() {
 
   const objectCount = cells.size + connections.size;
   const selectedCount = selectedUuids.size;
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    // Simplified mobile status bar
+    return (
+      <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg px-4 py-2 flex items-center justify-between text-xs shadow-lg">
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+            <span className="text-slate-300">{objectCount} objects</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+            <span className="text-slate-300">{selectedCount} selected</span>
+          </div>
+        </div>
+
+        {topology && (
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
+              <span className="text-emerald-300 text-xs">{topology.configuration}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+              <span className="text-blue-300 text-xs">{topology.nominalVoltage.toFixed(1)}V</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 flex items-center space-x-6 text-xs shadow-2xl">

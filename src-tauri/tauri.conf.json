@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "cellforge",
-  "version": "0.1.0",
-  "identifier": "com.ayf.cellforge",
+  "productName": "CellForge",
+  "version": "1.0.0",
+  "identifier": "com.cellforge.cellforge",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,21 @@
   "app": {
     "windows": [
       {
-        "title": "cellforge",
-        "width": 800,
-        "height": 600
+        "title": "CellForge - 3D Battery Design",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 768,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "skipTaskbar": false,
+        "theme": null
       }
     ],
     "security": {
@@ -24,12 +36,40 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "Professional 3D Battery & Microelectronic CAD",
+    "longDescription": "CellForge is a revolutionary 3D Computer-Aided Design application specifically engineered for battery pack design and microelectronic systems. Built for electrical engineers, product designers, and manufacturers.",
+    "copyright": "Copyright © 2025 CellForge Technologies. All rights reserved.",
+    "publisher": "CellForge Technologies",
+    "homepage": "https://cellforge.com",
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": [],
+    "externalBin": [],
+    "deb": {
+      "depends": []
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.15",
+      "license": "../LICENSE",
+      "providerShortName": "CellForge",
+      "entitlements": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": null,
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
   }
 }
