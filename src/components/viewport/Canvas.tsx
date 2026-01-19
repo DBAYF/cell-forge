@@ -294,59 +294,47 @@ export function ViewportCanvas() {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
   const [isMultiTouch, setIsMultiTouch] = useState(false);
 
-  // Handle pointer events in Canvas (needs Three.js context)
+  // Handle pointer events in Canvas (simplified for now)
   const handleCanvasPointerDown = useCallback((event: any) => {
     event.preventDefault();
+    console.log('🖱️ Canvas clicked, activeTool:', activeTool);
 
     if (event.button === 0 || event.pointerType === 'touch') {
-      const rect = gl.domElement.getBoundingClientRect();
-      const screenX = event.clientX - rect.left;
-      const screenY = event.clientY - rect.top;
-      const normalizedX = (screenX / rect.width) * 2 - 1;
-      const normalizedY = -(screenY / rect.height) * 2 + 1;
-
-      // Try to select existing objects first (for all tools)
-      const intersection = raycastBatteryComponents(normalizedX, normalizedY);
-
       if (activeTool === 'add-cell') {
-        // Add a new battery cell at the clicked position (only if not clicking on existing object)
-        if (!intersection) {
-          const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-          const worldPos = new THREE.Vector3();
-          raycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), camera);
-          raycaster.ray.intersectPlane(groundPlane, worldPos);
+        // Simple cell placement without raycasting for now
+        const rect = gl.domElement.getBoundingClientRect();
+        const screenX = event.clientX - rect.left;
+        const screenY = event.clientY - rect.top;
+        const normalizedX = (screenX / rect.width) * 2 - 1;
+        const normalizedY = -(screenY / rect.height) * 2 + 1;
 
-          const gridSnapped = new THREE.Vector3(
-            Math.round(worldPos.x / gridSize) * gridSize,
-            0,
-            Math.round(worldPos.z / gridSize) * gridSize
-          );
+        // Create a temporary raycaster for placement
+        const tempRaycaster = new THREE.Raycaster();
+        const tempCamera = new THREE.PerspectiveCamera(50, rect.width / rect.height, 0.1, 10000);
+        tempCamera.position.set(100, 100, 100);
+        tempCamera.lookAt(0, 0, 0);
 
-          addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
-          console.log('Added battery cell at:', gridSnapped);
-        }
-      } else if (activeTool === 'select' || activeTool === 'transform') {
-          // Handle object selection for select and transform tools
-          if (intersection) {
-            const uuid = intersection.object.userData?.uuid;
-            if (uuid) {
-              selectObjects([uuid], 'replace');
-              console.log('Selected object:', uuid);
-            }
-          } else {
-            // Clicked in empty space - clear selection
-            selectObjects([], 'replace');
-            console.log('Cleared selection');
-          }
+        tempRaycaster.setFromCamera(new THREE.Vector2(normalizedX, normalizedY), tempCamera);
+
+        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const worldPos = new THREE.Vector3();
+        tempRaycaster.ray.intersectPlane(groundPlane, worldPos);
+
+        const gridSnapped = new THREE.Vector3(
+          Math.round(worldPos.x / gridSize) * gridSize,
+          0,
+          Math.round(worldPos.z / gridSize) * gridSize
+        );
+
+        addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
+        console.log('✅ Added battery cell at:', gridSnapped);
       } else {
-        // Other tools - for now just clear selection if clicking empty space
-        if (!intersection) {
-          selectObjects([], 'replace');
-          console.log('Cleared selection');
-        }
+        // For other tools, just clear selection for now
+        selectObjects([], 'replace');
+        console.log('🗑️ Cleared selection');
       }
     }
-  }, [activeTool, raycastBatteryComponents, camera, gl, raycaster, gridSize, addCell, selectObjects]);
+  }, [activeTool, gl, gridSize, addCell, selectObjects]);
 
   // Touch-specific handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
@@ -424,9 +412,12 @@ export function ViewportCanvas() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
       </div>
 
-      {/* Debug indicator for 3D canvas */}
+      {/* Debug indicators for 3D canvas */}
       <div className="absolute top-2 right-2 z-40 bg-blue-500 text-white px-2 py-1 text-xs rounded shadow-lg">
         🎨 3D Canvas Active
+      </div>
+      <div className="absolute top-2 right-40 z-40 bg-purple-500 text-white px-2 py-1 text-xs rounded shadow-lg">
+        Tool: {activeTool || 'none'}
       </div>
 
       {/* Conditionally render Canvas only if THREE.js is available */}
