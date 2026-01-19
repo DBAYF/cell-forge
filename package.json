@@ -40,7 +40,8 @@
     "format": "prettier --write src/**/*.{ts,tsx}",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
