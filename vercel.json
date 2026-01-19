@@ -1,17 +1,7 @@
 {
   "version": 2,
-  "name": "cellforge",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": null,
-  "functions": {
-    "dist/**/*.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
