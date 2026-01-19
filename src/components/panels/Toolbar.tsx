@@ -13,6 +13,7 @@ import {
   Magnet,
   Download,
   Zap,
+  Copy,
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
@@ -32,6 +33,9 @@ export function Toolbar() {
 
   const undo = useSceneStore((state) => state.undo);
   const redo = useSceneStore((state) => state.redo);
+  const addCell = useSceneStore((state) => state.addCell);
+  const duplicate = useSceneStore((state) => state.duplicate);
+  const selectedUuids = useSceneStore((state) => state.selectedUuids);
 
   // Helper functions
   const handleNewProject = () => {
@@ -53,6 +57,39 @@ export function Toolbar() {
   const handleExport = () => {
     // TODO: Implement actual export functionality
     console.log('Export functionality to be implemented');
+  };
+
+  const handleCreatePack = () => {
+    // Create a basic 4x4 battery pack formation
+    const packSize = 4; // 4x4 pack
+    const spacing = 20; // 20mm spacing between cells
+    const startX = -(packSize - 1) * spacing / 2;
+    const startZ = -(packSize - 1) * spacing / 2;
+
+    for (let row = 0; row < packSize; row++) {
+      for (let col = 0; col < packSize; col++) {
+        const x = startX + col * spacing;
+        const z = startZ + row * spacing;
+        addCell(1, [x, 0, z]);
+      }
+    }
+    console.log(`Created ${packSize}x${packSize} battery pack`);
+  };
+
+  const handleConnectCells = () => {
+    // For now, just log that connection mode is active
+    // TODO: Implement actual cell connection system
+    console.log('Connect cells mode activated');
+    setActiveTool('connect');
+  };
+
+  const handleDuplicate = () => {
+    if (selectedUuids.size > 0) {
+      duplicate(Array.from(selectedUuids));
+      console.log(`Duplicated ${selectedUuids.size} objects`);
+    } else {
+      console.log('No objects selected to duplicate');
+    }
   };
 
   return (
@@ -121,6 +158,13 @@ export function Toolbar() {
               onClick={() => redo()}
             >
               <Redo className="w-5 h-5 text-slate-300 hover:text-orange-300" />
+            </button>
+            <button
+              className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-all duration-200 hover:shadow-md"
+              title="Duplicate Selected"
+              onClick={handleDuplicate}
+            >
+              <Copy className="w-5 h-5 text-slate-300 hover:text-purple-300" />
             </button>
           </div>
 
@@ -206,6 +250,24 @@ export function Toolbar() {
               onClick={() => setTransformMode('scale')}
             >
               <Scaling className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Battery Operations */}
+          <div className="flex items-center space-x-2 border-r border-slate-500/30 pr-4 mr-4">
+            <button
+              className="px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 text-white text-sm font-medium mr-2"
+              title="Create Electrical Connections"
+              onClick={handleConnectCells}
+            >
+              Connect
+            </button>
+            <button
+              className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-green-500/25 text-white text-sm font-medium"
+              title="Create Battery Pack (4x4)"
+              onClick={handleCreatePack}
+            >
+              Create Pack
             </button>
           </div>
 
