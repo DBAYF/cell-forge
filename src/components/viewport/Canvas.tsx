@@ -19,9 +19,7 @@ interface MouseCoords {
 }
 
 function CanvasContent() {
-  console.log('🎯 CanvasContent initializing...');
   const { camera, gl, scene, raycaster } = useThree();
-  console.log('🔦 Three.js context:', { camera: !!camera, gl: !!gl, scene: !!scene, raycaster: !!raycaster });
 
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
@@ -29,8 +27,6 @@ function CanvasContent() {
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
   const selectObjects = useSceneStore((state) => state.select);
-
-  console.log('⚙️ CanvasContent state:', { gridVisible, gridSize, activeTool, selectedCount: selectedUuids.size });
 
   // Mouse coordinate state
   const [mouseCoords, setMouseCoords] = useState<MouseCoords>({
@@ -224,23 +220,11 @@ function CanvasContent() {
 }
 
 export function ViewportCanvas() {
-  console.log('🎨 ViewportCanvas rendering...');
-  console.log('📦 THREE available:', typeof THREE);
-  console.log('🔧 THREE.Vector3 available:', typeof THREE?.Vector3);
-
   const gridVisible = useUIStore((state) => state.gridVisible);
   const gridSize = useUIStore((state) => state.gridSize);
   const activeTool = useUIStore((state) => state.activeTool);
   const selectedUuids = useSceneStore((state) => state.selectedUuids);
   const addCell = useSceneStore((state) => state.addCell);
-
-  console.log('🎛️ Canvas state:', {
-    gridVisible,
-    gridSize,
-    activeTool,
-    selectedCount: selectedUuids.size,
-    hasAddCell: typeof addCell === 'function'
-  });
 
   // Ensure THREE.js is available
   useEffect(() => {
@@ -297,7 +281,6 @@ export function ViewportCanvas() {
   // Handle pointer events in Canvas (simplified for now)
   const handleCanvasPointerDown = useCallback((event: any) => {
     event.preventDefault();
-    console.log('🖱️ Canvas clicked, activeTool:', activeTool);
 
     if (event.button === 0 || event.pointerType === 'touch') {
       if (activeTool === 'add-cell') {
@@ -327,11 +310,9 @@ export function ViewportCanvas() {
         );
 
         addCell(1, [gridSnapped.x, gridSnapped.y, gridSnapped.z]);
-        console.log('✅ Added battery cell at:', gridSnapped);
       } else {
         // For other tools, just clear selection for now
         selectObjects([], 'replace');
-        console.log('🗑️ Cleared selection');
       }
     }
   }, [activeTool, gl, gridSize, addCell, selectObjects]);
@@ -410,14 +391,6 @@ export function ViewportCanvas() {
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]"></div>
-      </div>
-
-      {/* Debug indicators for 3D canvas */}
-      <div className="absolute top-2 right-2 z-40 bg-blue-500 text-white px-2 py-1 text-xs rounded shadow-lg">
-        🎨 3D Canvas Active
-      </div>
-      <div className="absolute top-2 right-40 z-40 bg-purple-500 text-white px-2 py-1 text-xs rounded shadow-lg">
-        Tool: {activeTool || 'none'}
       </div>
 
       {/* Conditionally render Canvas only if THREE.js is available */}

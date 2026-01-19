@@ -14,8 +14,6 @@ import { KeyboardShortcuts } from './lib/keyboardShortcuts';
 import { Accessibility } from './lib/accessibility';
 
 function App() {
-  console.log('🚀 CellForge App starting...');
-
   const [isMobile, setIsMobile] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'library' | 'properties' | 'outliner' | null>(null);
 
@@ -24,14 +22,11 @@ function App() {
   const setSidebarWidth = useUIStore((state) => state.setSidebarWidth);
   const setPropertiesWidth = useUIStore((state) => state.setPropertiesWidth);
 
-  console.log('📊 UI store values:', { sidebarWidth, propertiesWidth, isMobile });
-
   // Mobile detection
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768; // md breakpoint
       setIsMobile(mobile);
-      console.log('Mobile detected:', mobile);
     };
 
     checkMobile();
@@ -106,10 +101,6 @@ function App() {
   // Desktop Layout
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white overflow-hidden relative">
-      {/* Debug indicator - shows app is loading */}
-      <div className="absolute top-2 left-2 z-50 bg-green-500 text-white px-2 py-1 text-xs rounded shadow-lg">
-        ✅ CellForge Loaded
-      </div>
       {/* Title Bar - Minimal */}
       <div className="absolute top-0 left-0 right-0 z-50">
         <TitleBar />
