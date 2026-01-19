@@ -14,7 +14,7 @@ import { KeyboardShortcuts } from './lib/keyboardShortcuts';
 import { Accessibility } from './lib/accessibility';
 
 function App() {
-  console.log('App component rendering...');
+  console.log('CellForge App component rendering - Version 1.0.0');
 
   const [isMobile, setIsMobile] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'library' | 'properties' | 'outliner' | null>(null);
@@ -106,6 +106,9 @@ function App() {
   // Desktop Layout
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white overflow-hidden relative">
+      {/* Debug indicator - remove after confirming deployment */}
+      <div className="absolute top-4 left-4 z-50 bg-red-500 text-white px-2 py-1 text-xs rounded">
+        CellForge 1.0.0 - Deployed</div>
       {/* Title Bar - Minimal */}
       <div className="absolute top-0 left-0 right-0 z-50">
         <TitleBar />
