@@ -120,6 +120,190 @@ function PackVisualization({
       />
     </group>
   );
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Create individual cell meshes
+  const cellMeshes = layout.cellPositions.map((position, index) => {
+    let geometry: THREE.BufferGeometry;
+    let material: THREE.Material;
+
+    if (battery.model_type === 'cylinder') {
+      geometry = new THREE.CylinderGeometry(
+        battery.diameter! / 2,
+        battery.diameter! / 2,
+        battery.length!,
+        24
+      );
+      material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL((position.seriesPosition / layout.configuration.series) * 0.7, 0.7, 0.5),
+        metalness: 0.1,
+        roughness: 0.8
+      });
+    } else {
+      geometry = new THREE.BoxGeometry(
+        battery.width!,
+        battery.length!,
+        battery.thickness!
+      );
+      material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL((position.seriesPosition / layout.configuration.series) * 0.7, 0.7, 0.5),
+        metalness: 0.1,
+        roughness: 0.8
+      });
+    }
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(position.x, position.y, position.z);
+
+    // Add terminal visualization
+    if (showTerminals && battery.model_type === 'cylinder') {
+      const terminalGeometry = new THREE.CylinderGeometry(
+        battery.diameter! / 4,
+        battery.diameter! / 4,
+        1.5,
+        16
+      );
+      const terminalMaterial = new THREE.MeshStandardMaterial({
+        color: position.polarityUp ? '#ff4444' : '#4444ff',
+        metalness: 0.9,
+        roughness: 0.1
+      });
+      const terminal = new THREE.Mesh(terminalGeometry, terminalMaterial);
+      terminal.position.set(
+        position.x,
+        position.y,
+        position.z + (position.polarityUp ? battery.length! / 2 + 0.75 : -battery.length! / 2 - 0.75)
+      );
+      mesh.add(terminal);
+    }
+
+    return mesh;
+  });
+
+  // Create wiring visualization
+  const wiringLines: THREE.Line[] = [];
+  if (showWiring) {
+    // Parallel connections within series groups
+    for (let seriesPos = 0; seriesPos < layout.configuration.series; seriesPos++) {
+      const cellsInGroup = layout.cellPositions.filter(c => c.seriesPosition === seriesPos);
+
+      for (let i = 0; i < cellsInGroup.length - 1; i++) {
+        const cellA = cellsInGroup[i];
+        const cellB = cellsInGroup[i + 1];
+
+        const points = [
+          new THREE.Vector3(cellA.x, cellA.y, cellA.z + (cellA.polarityUp ? battery.length! / 2 : -battery.length! / 2)),
+          new THREE.Vector3(cellB.x, cellB.y, cellB.z + (cellB.polarityUp ? battery.length! / 2 : -battery.length! / 2))
+        ];
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: '#000000', linewidth: 2 });
+        const line = new THREE.Line(geometry, material);
+        wiringLines.push(line);
+      }
+    }
+
+    // Series connections between groups
+    for (let seriesPos = 0; seriesPos < layout.configuration.series - 1; seriesPos++) {
+      const currentGroup = layout.cellPositions.filter(c => c.seriesPosition === seriesPos);
+      const nextGroup = layout.cellPositions.filter(c => c.seriesPosition === seriesPos + 1);
+
+      if (currentGroup.length > 0 && nextGroup.length > 0) {
+        const currentCell = currentGroup[0];
+        const nextCell = nextGroup[0];
+
+        const points = [
+          new THREE.Vector3(currentCell.x, currentCell.y, currentCell.z + (currentCell.polarityUp ? -battery.length! / 2 : battery.length! / 2)),
+          new THREE.Vector3(nextCell.x, nextCell.y, nextCell.z + (nextCell.polarityUp ? battery.length! / 2 : -battery.length! / 2))
+        ];
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: '#0000ff', linewidth: 3 });
+        const line = new THREE.Line(geometry, material);
+        wiringLines.push(line);
+      }
+    }
+  }
+
+  // Create bounding box
+  const boundingBoxGeometry = new THREE.BoxGeometry(
+    layout.totalDimensions.x,
+    layout.totalDimensions.y,
+    layout.totalDimensions.z
+  );
+  const boundingBoxMaterial = new THREE.MeshBasicMaterial({
+    color: '#ffffff',
+    wireframe: true,
+    transparent: true,
+    opacity: 0.3
+  });
+  const boundingBox = new THREE.Mesh(boundingBoxGeometry, boundingBoxMaterial);
+
+  // Create enclosure
+  let enclosure: THREE.Mesh | null = null;
+  if (showEnclosure) {
+    const wallThickness = 2;
+    const outerDimensions = {
+      x: layout.totalDimensions.x + (2 * wallThickness),
+      y: layout.totalDimensions.y + (2 * wallThickness),
+      z: layout.totalDimensions.z + wallThickness
+    };
+
+    const outerGeometry = new THREE.BoxGeometry(
+      outerDimensions.x,
+      outerDimensions.y,
+      outerDimensions.z
+    );
+    const innerGeometry = new THREE.BoxGeometry(
+      layout.totalDimensions.x,
+      layout.totalDimensions.y,
+      layout.totalDimensions.z + 10
+    );
+
+    const enclosureGeometry = new THREE.BoxGeometry(
+      outerDimensions.x,
+      outerDimensions.y,
+      outerDimensions.z
+    );
+
+    enclosure = new THREE.Mesh(enclosureGeometry, new THREE.MeshStandardMaterial({
+      color: '#cccccc',
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide
+    }));
+  }
+
+  return (
+    <group ref={groupRef}>
+      {/* Lighting */}
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[10, 10, 5]} intensity={0.8} />
+      <directionalLight position={[-10, -10, -5]} intensity={0.4} />
+
+      {/* Cell bodies */}
+      {showCellBodies && cellMeshes.map((mesh, index) => (
+        <primitive key={index} object={mesh} />
+      ))}
+
+      {/* Wiring */}
+      {showWiring && wiringLines.map((line, index) => (
+        <primitive key={`wire-${index}`} object={line} />
+      ))}
+
+      {/* Bounding box */}
+      {showBoundingBox && <primitive object={boundingBox} />}
+
+      {/* Enclosure */}
+      {showEnclosure && enclosure && <primitive object={enclosure} />}
+
+      {/* Grid */}
+      <Grid
+        args={[Math.max(layout.totalDimensions.x, layout.totalDimensions.y) * 2, 10]}
+        position={[0, 0, -layout.totalDimensions.z / 2 - 5]}
+      />
+    </group>
+  );
 }
 
 export function BatteryPackPreview({
@@ -243,9 +427,8 @@ export function BatteryPackPreview({
                     type="checkbox"
                     checked={showWiring}
                     onChange={(e) => setShowWiring(e.target.checked)}
-                    disabled
                   />
-                  <span className="text-slate-300 opacity-50">Show wiring diagram (Coming Soon)</span>
+                  <span className="text-slate-300">Show wiring diagram</span>
                 </label>
 
                 <label className="flex items-center space-x-3">
@@ -271,9 +454,8 @@ export function BatteryPackPreview({
                     type="checkbox"
                     checked={showDimensions}
                     onChange={(e) => setShowDimensions(e.target.checked)}
-                    disabled
                   />
-                  <span className="text-slate-300 opacity-50">Show dimensions (Coming Soon)</span>
+                  <span className="text-slate-300">Show dimensions</span>
                 </label>
               </div>
             </div>
