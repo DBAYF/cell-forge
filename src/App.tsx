@@ -8,19 +8,33 @@ import { StatusBar } from './components/panels/StatusBar';
 import { TitleBar } from './components/ui/TitleBar';
 import { MobileToolbar } from './components/mobile/MobileToolbar';
 import { MobileBottomSheet } from './components/mobile/MobileBottomSheet';
-import { useUIStore } from './stores';
+import { BatteryBoxCreator } from './components/panels/BatteryBoxCreator';
+import { BatteryPackPreview } from './components/viewport/BatteryPackPreview';
+import { useUIStore, useSceneStore } from './stores';
 import { useElectricalSolver } from './hooks/useElectricalSolver';
 import { KeyboardShortcuts } from './lib/keyboardShortcuts';
 import { Accessibility } from './lib/accessibility';
+import { PhysicalLayout } from './lib/batteryConfigAlgorithm';
+import { BatterySpec, BATTERY_DATABASE } from './lib/batteryDatabase';
+import { createPackObject3D, createEnclosureObject3D } from './lib/batteryGeometryGenerator';
+import { BatteryExporters } from './lib/batteryExporters';
+import * as THREE from 'three';
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'library' | 'properties' | 'outliner' | null>(null);
 
+  // Battery Box Creator state
+  const [showBatteryCreator, setShowBatteryCreator] = useState(false);
+  const [previewLayout, setPreviewLayout] = useState<PhysicalLayout | null>(null);
+  const [previewBattery, setPreviewBattery] = useState<BatterySpec | null>(null);
+
   const sidebarWidth = useUIStore((state) => state.sidebarWidth);
   const propertiesWidth = useUIStore((state) => state.propertiesWidth);
   const setSidebarWidth = useUIStore((state) => state.setSidebarWidth);
   const setPropertiesWidth = useUIStore((state) => state.setPropertiesWidth);
+
+  const addObject = useSceneStore((state) => state.addObject);
 
   // Mobile detection
   useEffect(() => {
@@ -33,6 +47,74 @@ function App() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Battery Box Creator handlers
+  const handleOpenBatteryCreator = () => {
+    setShowBatteryCreator(true);
+  };
+
+  const handleCloseBatteryCreator = () => {
+    setShowBatteryCreator(false);
+  };
+
+  const handlePreviewPack = (layout: PhysicalLayout) => {
+    const battery = BATTERY_DATABASE[layout.configuration.cellsUsed > 0 ? '18650' : '18650']; // Default battery
+    setPreviewLayout(layout);
+    setPreviewBattery(battery);
+  };
+
+  const handleInsertIntoScene = () => {
+    if (previewLayout && previewBattery) {
+      const packObject = createPackObject3D({
+        group: new THREE.Group(),
+        boundingBox: new THREE.Box3(),
+        cellMeshes: [],
+        metadata: {
+          layout: previewLayout,
+          battery: previewBattery,
+          cellCount: previewLayout.cellPositions.length,
+          configuration: previewLayout.configuration.code
+        }
+      });
+
+      addObject({
+        id: `battery-pack-${Date.now()}`,
+        name: `Battery Pack ${previewLayout.configuration.code}`,
+        type: 'battery-pack',
+        mesh: packObject,
+        parameters: {
+          layout: previewLayout,
+          battery: previewBattery
+        }
+      });
+
+      setPreviewLayout(null);
+      setPreviewBattery(null);
+      setShowBatteryCreator(false);
+    }
+  };
+
+  const handleGenerateEnclosure = () => {
+    if (previewLayout) {
+      const enclosureObject = createEnclosureObject3D(previewLayout);
+
+      addObject({
+        id: `battery-enclosure-${Date.now()}`,
+        name: `Battery Enclosure ${previewLayout.configuration.code}`,
+        type: 'battery-enclosure',
+        mesh: enclosureObject,
+        parameters: {
+          layout: previewLayout
+        }
+      });
+    }
+  };
+
+  const handleExportSTL = () => {
+    if (previewLayout && previewBattery) {
+      BatteryExporters.exportPackSTL(previewLayout, previewBattery);
+    }
+  };
 
   // Ensure electrical calculations are always up to date
   useElectricalSolver();
@@ -114,7 +196,7 @@ function App() {
 
         {/* Top Toolbar Overlay - Collapsible */}
         <div className="absolute top-16 left-4 right-4 z-40 transition-all duration-300 ease-in-out">
-          <Toolbar />
+          <Toolbar onOpenBatteryCreator={handleOpenBatteryCreator} />
         </div>
 
         {/* Left Panel - Library (Collapsible) */}
@@ -190,6 +272,34 @@ function App() {
           </button>
         </div>
       </div>
+
+      {/* Battery Box Creator Modal */}
+      {showBatteryCreator && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] overflow-hidden">
+            <BatteryBoxCreator
+              onClose={handleCloseBatteryCreator}
+              onGeneratePack={handlePreviewPack}
+              onPreviewPack={handlePreviewPack}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Battery Pack Preview Modal */}
+      {previewLayout && previewBattery && (
+        <BatteryPackPreview
+          layout={previewLayout}
+          battery={previewBattery}
+          onClose={() => {
+            setPreviewLayout(null);
+            setPreviewBattery(null);
+          }}
+          onInsertIntoScene={handleInsertIntoScene}
+          onGenerateEnclosure={handleGenerateEnclosure}
+          onExportSTL={handleExportSTL}
+        />
+      )}
     </div>
   );
 }

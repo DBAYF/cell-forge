@@ -15,11 +15,12 @@ import {
   Zap,
   Copy,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Battery
 } from 'lucide-react';
 import { useUIStore, useSceneStore } from '../../stores';
 
-export function Toolbar() {
+export function Toolbar({ onOpenBatteryCreator }: { onOpenBatteryCreator?: () => void }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const activeTool = useUIStore((state) => state.activeTool);
   const transformMode = useUIStore((state) => state.transformMode);
@@ -255,6 +256,14 @@ export function Toolbar() {
 
           {/* Battery Operations */}
           <div className="flex items-center space-x-2 border-r border-slate-500/30 pr-4 mr-4">
+            <button
+              className="px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25 text-white text-sm font-medium mr-2"
+              title="Battery Box Creator - Design complete battery packs"
+              onClick={onOpenBatteryCreator}
+            >
+              <Battery className="w-4 h-4 inline mr-1" />
+              Box Creator
+            </button>
             <button
               className="px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 text-white text-sm font-medium mr-2"
               title="Create Electrical Connections"
